@@ -6,6 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
 using osu.Game.Beatmaps;
+using osu.Game.Localisation;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SettingsItems;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard.Config;
@@ -13,6 +14,8 @@ using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard.Storyb
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Config;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Types;
 using osu.Game.Rulesets.IGPlayer.Localisation.LLin;
+using osu.Game.Screens.Play;
+using osuTK;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard
 {
@@ -56,18 +59,34 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard
             });
         }
 
+        private readonly PlayerLoaderDisclaimer epilepsyWarning = new(PlayerLoaderStrings.EpilepsyWarningTitle, PlayerLoaderStrings.EpilepsyWarningContent)
+        {
+            Anchor = Anchor.TopCentre,
+            Origin = Anchor.TopCentre,
+            Margin = new MarginPadding(20),
+            Depth = -1,
+            Width = 0.5f,
+            Scale = new Vector2(2f)
+        };
+
         [BackgroundDependencyLoader]
         private void load()
         {
             var config = (SbLoaderConfigManager)DependenciesContainer.Get<LLinPluginManager>().GetConfigManager(this);
             config.BindWith(SbLoaderSettings.EnableStoryboard, Enabled);
 
-            if (LLin == null) return;
+            DependenciesContainer.Cache(new OverlayColourProvider(OverlayColourScheme.Lime));
 
-            LLin.Exiting += UnLoad;
-            LLin.Suspending += onScreenSuspending;
-            LLin.Resuming += onScreenResuming;
-            LLin.OnBeatmapChanged(refresh, this, true);
+            if (LLin != null)
+            {
+                LLin.Exiting += UnLoad;
+                LLin.Suspending += onScreenSuspending;
+                LLin.Resuming += onScreenResuming;
+                LLin.OnBeatmapChanged(refresh, this, true);
+            }
+
+            AddInternal(epilepsyWarning);
+            LLin?.AddProxy(epilepsyWarning.CreateProxy());
         }
 
         private void onScreenResuming()
@@ -154,6 +173,13 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard
             if (targetBeatmap == null)
                 throw new InvalidOperationException("targetBeatmap 不能为 null");
 
+            epilepsyWarning.ScaleTo(1);
+
+            if (targetBeatmap.BeatmapInfo.EpilepsyWarning)
+                epilepsyWarning.Show();
+            else
+                epilepsyWarning.Hide();
+
             sbLoaded.Value = false;
             NeedToHideTriangles.Value = false;
             StoryboardReplacesBackground.Value = false;
@@ -197,6 +223,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard
                 if (StoryboardReplacesBackground.Value) LLin.RequestBlackBackground(this);
                 else LLin.RequestNonBlackBackground(this);
             }
+
+            if (targetBeatmap.BeatmapInfo.EpilepsyWarning)
+                epilepsyWarning.ScaleTo(1.001f, 5000).OnComplete(_ => epilepsyWarning.Hide());
 
             return true;
         }
