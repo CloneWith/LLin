@@ -184,7 +184,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
             LyricProcessor.SearchByNeteaseID(id, CurrentWorkingBeatmap, onLyricRequestFinished, onLyricRequestFail);
         }
 
-        private Track track = null!;
+        private ITrack track = null!;
 
         public readonly BindableDouble Offset = new BindableDouble
         {

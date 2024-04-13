@@ -10,7 +10,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.SandboxToPane
     {
         public readonly BindableBool IsKiai = new BindableBool();
 
-        private Track track;
+        private ITrack track;
 
         protected override void OnBeatmapChanged(ValueChangedEvent<WorkingBeatmap> beatmap)
         {
