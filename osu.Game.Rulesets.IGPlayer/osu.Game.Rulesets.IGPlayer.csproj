@@ -6,6 +6,8 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RootNamespace>osu.Game.Rulesets.IGPlayer</RootNamespace>
     <Nullable>enable</Nullable>
+    <AssemblyVersion>2024.413.0</AssemblyVersion>
+    <FileVersion>2024.413.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Textures\**\*" />
