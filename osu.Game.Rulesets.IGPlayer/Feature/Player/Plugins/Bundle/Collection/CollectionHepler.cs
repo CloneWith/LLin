@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Audio.Track;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Audio;
 using osu.Framework.Platform;
 using osu.Game.Beatmaps;
 using osu.Game.Collections;
@@ -125,10 +125,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
         {
             try
             {
-                if (drawableTrack.IsRunning)
-                    drawableTrack.Stop();
+                if (beatmapTrack.IsRunning)
+                    beatmapTrack.Stop();
                 else
-                    drawableTrack.Start();
+                    beatmapTrack.Start();
             }
             catch (Exception e)
             {
@@ -152,7 +152,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
             return true;
         }
 
-        private DrawableTrack drawableTrack = null!;
+        private ITrack beatmapTrack = null!;
 
         private bool isCurrent;
 
@@ -163,8 +163,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
             {
                 if (trackChangedAfterDisable && value)
                 {
-                    drawableTrack = new DrawableTrack(b.Value.Track);
-                    drawableTrack.Completed += () =>
+                    var track = b.Value.Track;
+
+                    beatmapTrack = track;
+                    track.Completed += () =>
                     {
                         if (IsCurrent) Schedule(() => NextTrack());
                     };
@@ -179,11 +181,13 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
         {
             if (Disabled.Value) return;
 
+            var track = b.Value.Track;
+
             b.Disabled = false;
             b.Value = working;
             b.Disabled = IsCurrent;
-            drawableTrack = new DrawableTrack(b.Value.Track);
-            drawableTrack.Completed += () =>
+            beatmapTrack = track;
+            track.Completed += () =>
             {
                 if (IsCurrent) Schedule(() => NextTrack());
             };

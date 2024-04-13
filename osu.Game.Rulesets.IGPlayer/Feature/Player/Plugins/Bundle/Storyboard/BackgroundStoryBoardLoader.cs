@@ -6,6 +6,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Platform;
 using osu.Framework.Timing;
 using osu.Game.Beatmaps;
+using osu.Game.Localisation;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SettingsItems;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard.Config;
@@ -14,6 +15,7 @@ using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Config;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Types;
 using osu.Game.Rulesets.IGPlayer.Localisation.LLin;
 using osu.Game.Screens.Play;
+using osuTK;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard
 {
@@ -57,14 +59,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard
             });
         }
 
-        private readonly EpilepsyWarning epilepsyWarning = new EpilepsyWarning
+        private readonly PlayerLoaderDisclaimer epilepsyWarning = new(PlayerLoaderStrings.EpilepsyWarningTitle, PlayerLoaderStrings.EpilepsyWarningContent)
         {
             Anchor = Anchor.TopCentre,
             Origin = Anchor.TopCentre,
             Margin = new MarginPadding(20),
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            Depth = -1
+            Depth = -1,
+            Width = 0.5f,
+            Scale = new Vector2(2f)
         };
 
         [BackgroundDependencyLoader]
@@ -72,6 +74,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Storyboard
         {
             var config = (SbLoaderConfigManager)DependenciesContainer.Get<LLinPluginManager>().GetConfigManager(this);
             config.BindWith(SbLoaderSettings.EnableStoryboard, Enabled);
+
+            DependenciesContainer.Cache(new OverlayColourProvider(OverlayColourScheme.Lime));
 
             if (LLin != null)
             {
