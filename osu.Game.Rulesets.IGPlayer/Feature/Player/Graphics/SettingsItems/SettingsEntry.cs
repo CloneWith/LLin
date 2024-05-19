@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
@@ -79,7 +80,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SettingsItems
     }
 
     public class NumberSettingsEntry<T> : SettingsEntry
-        where T : struct, IEquatable<T>, IComparable<T>, IConvertible
+        where T : struct, INumber<T>, IMinMaxValue<T>
     {
         public bool DisplayAsPercentage = false;
         public float KeyboardStep = 0.1f;
