@@ -24,7 +24,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.Se
 
         private readonly OsuSpriteText title = new OsuSpriteText
         {
-            Font = OsuFont.GetFont(size: 30)
+            Font = OsuFont.GetFont(size: 30),
+            Anchor = Anchor.TopRight,
+            Origin = Anchor.TopRight
         };
 
         protected Section()
@@ -42,25 +44,13 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.Se
                     AutoSizeAxes = Axes.Y,
                     RelativeSizeAxes = Axes.X,
                     Spacing = new Vector2(5),
-                    Margin = new MarginPadding { Top = 40 }
+                    Margin = new MarginPadding { Top = 40 },
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight
                 }
             };
-        }
 
-        [Cached]
-        private Bindable<TabControlPosition> currentTabPosition { get; set; } = new Bindable<TabControlPosition>();
-
-        [BackgroundDependencyLoader]
-        private void load(MConfigManager config)
-        {
-            config.BindWith(MSetting.MvisTabControlPosition, currentTabPosition);
-        }
-
-        protected override void LoadComplete()
-        {
-            currentTabPosition.BindValueChanged(OnTabPositionChanged, true);
-
-            base.LoadComplete();
+            Anchor = Origin = Anchor.TopRight;
         }
 
         protected void FadeoutThen(double fadeOutDuration, Action action)
@@ -70,30 +60,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.Se
                 .Schedule(action.Invoke)
                 .Then()
                 .FadeIn(200, Easing.OutQuint);
-        }
-
-        protected virtual void OnTabPositionChanged(ValueChangedEvent<TabControlPosition> v)
-        {
-            switch (v.NewValue)
-            {
-                case TabControlPosition.Left:
-                    title.Anchor = title.Origin = Anchor.TopLeft;
-                    Anchor = Origin = Anchor.TopLeft;
-                    FillFlow.Anchor = FillFlow.Origin = Anchor.TopLeft;
-                    break;
-
-                case TabControlPosition.Right:
-                    title.Anchor = title.Origin = Anchor.TopRight;
-                    Anchor = Origin = Anchor.TopRight;
-                    FillFlow.Anchor = FillFlow.Origin = Anchor.TopRight;
-                    break;
-
-                case TabControlPosition.Top:
-                    title.Anchor = title.Origin = Anchor.TopCentre;
-                    Anchor = Origin = Anchor.TopCentre;
-                    FillFlow.Anchor = FillFlow.Origin = Anchor.TopCentre;
-                    break;
-            }
         }
 
         protected readonly FillFlowContainer FillFlow;

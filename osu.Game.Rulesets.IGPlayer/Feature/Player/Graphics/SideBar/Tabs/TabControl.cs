@@ -49,35 +49,24 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs
                 Origin = Anchor.CentreRight,
                 AutoSizeAxes = Axes.Both,
                 Direction = FillDirection.Vertical,
-                Spacing = new Vector2(5)
+                Spacing = new Vector2(10)
             };
 
             InternalChild = scrollContainer = new Container
             {
                 RelativeSizeAxes = Axes.Both,
                 Alpha = 0,
-                Children = new Drawable[]
+                Child = verticalScroll = new OsuScrollContainer(Direction.Vertical)
                 {
-                    verticalScroll = new OsuScrollContainer(Direction.Vertical)
+                    RelativeSizeAxes = Axes.Both,
+                    ScrollContent =
                     {
-                        RelativeSizeAxes = Axes.Both,
-                        ScrollContent =
-                        {
-                            Anchor = Anchor.CentreRight,
-                            Origin = Anchor.CentreRight
-                        },
-                        ScrollbarVisible = false
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.None,
+                        AutoSizeAxes = Axes.Both
                     },
-                    horizonalScroll = new OsuScrollContainer(Direction.Horizontal)
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        ScrollContent =
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre
-                        },
-                        ScrollbarVisible = false
-                    }
+                    ScrollbarVisible = false
                 }
             };
         }
@@ -85,85 +74,38 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs
         [BackgroundDependencyLoader]
         private void load(MConfigManager config)
         {
-            anchorTarget = config.GetBindable<TabControlPosition>(MSetting.MvisTabControlPosition);
+            anchorTarget = new Bindable<TabControlPosition>();
 
             anchorTarget.BindValueChanged(onTabControlPosChanged, true);
         }
 
         private void onTabControlPosChanged(ValueChangedEvent<TabControlPosition> v)
         {
-            toggleMode(v.NewValue);
+            toggleMode();
 
-            switch (v.NewValue)
-            {
-                case TabControlPosition.Right:
-                    Anchor = Anchor.CentreRight;
-                    Origin = Anchor.CentreRight;
-                    Tabs.Padding = new MarginPadding { Right = 5 };
-                    break;
-
-                case TabControlPosition.Left:
-                    Anchor = Anchor.CentreLeft;
-                    Origin = Anchor.CentreLeft;
-                    Tabs.Padding = new MarginPadding { Left = 5 };
-                    break;
-
-                case TabControlPosition.Top:
-                    Anchor = Anchor.TopCentre;
-                    Origin = Anchor.TopCentre;
-                    Tabs.Padding = new MarginPadding { Top = 5 };
-                    break;
-            }
+            Anchor = Anchor.CentreRight;
+            Origin = Anchor.CentreRight;
+            Tabs.Padding = new MarginPadding { Left = 5 };
         }
 
-        private Vector2 targetHidePos = new Vector2(0);
+        private Vector2 targetHidePos = new(0);
 
-        private void toggleMode(TabControlPosition newPos)
+        private void toggleMode()
         {
-            if (newPos == TabControlPosition.Left || newPos == TabControlPosition.Right)
-            {
-                RelativeSizeAxes = Axes.Y;
-                Height = 1;
-                Width = 50;
+            RelativeSizeAxes = Axes.Y;
+            Height = 1;
+            Width = 75;
 
-                targetHidePos = new Vector2(newPos == TabControlPosition.Right ? 5 : -5, 0);
+            targetHidePos = new Vector2(5, 0);
 
-                Tabs.Margin = new MarginPadding { Vertical = 25 };
-                Tabs.Direction = FillDirection.Vertical;
+            Tabs.Margin = new MarginPadding { Vertical = 25 };
+            Tabs.Direction = FillDirection.Vertical;
 
-                Tabs.Anchor = Tabs.Origin = Anchor.CentreRight;
+            Tabs.Anchor = Tabs.Origin = Anchor.CentreRight;
 
-                if (!verticalScroll.Children.Contains(Tabs))
-                {
-                    horizonalScroll.Remove(Tabs, false);
-                    verticalScroll.Add(Tabs);
-                }
+            if (!verticalScroll.Children.Contains(Tabs)) verticalScroll.Add(Tabs);
 
-                verticalScroll.FadeIn();
-                horizonalScroll.FadeOut();
-            }
-            else if (newPos == TabControlPosition.Top)
-            {
-                RelativeSizeAxes = Axes.X;
-                Height = 50;
-                Width = 1;
-
-                targetHidePos = new Vector2(0, -5);
-
-                Tabs.Margin = new MarginPadding { Horizontal = 25 };
-                Tabs.Direction = FillDirection.Horizontal;
-
-                Tabs.Anchor = Tabs.Origin = Anchor.TopCentre;
-
-                if (!horizonalScroll.Children.Contains(Tabs))
-                {
-                    verticalScroll.Remove(Tabs, false);
-                    horizonalScroll.Add(Tabs);
-                }
-
-                verticalScroll.FadeOut();
-                horizonalScroll.FadeIn();
-            }
+            verticalScroll.FadeIn();
 
             if (!IsVisible.Value) this.MoveTo(targetHidePos);
         }
@@ -188,9 +130,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs
 
         private bool sidebarActive;
 
-        public Bindable<bool> IsVisible = new Bindable<bool>();
+        public Bindable<bool> IsVisible = new();
         private readonly OsuScrollContainer verticalScroll;
-        private readonly OsuScrollContainer horizonalScroll;
         private readonly Container scrollContainer;
 
         public override void Show()

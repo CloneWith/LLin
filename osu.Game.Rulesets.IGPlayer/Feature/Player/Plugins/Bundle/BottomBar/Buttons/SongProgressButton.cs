@@ -29,6 +29,12 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
         private void load()
         {
             mvis.OnBeatmapChanged(b => lastSecond = -1, this, true);
+
+            if (this.outerContent != null)
+            {
+                this.outerContent.RelativeSizeAxes = Axes.Y;
+                this.outerContent.AutoSizeAxes = Axes.X;
+            }
         }
 
         private int lastSecond;

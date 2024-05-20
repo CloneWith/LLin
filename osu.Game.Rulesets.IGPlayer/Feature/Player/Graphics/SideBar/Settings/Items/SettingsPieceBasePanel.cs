@@ -72,9 +72,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.It
 
         private Sample sampleOnClick;
 
-        [Resolved]
-        private Bindable<TabControlPosition> tabpos { get; set; }
-
         public static readonly float SinglePanelWidth = 180f;
 
         public SettingsPieceBasePanel()
@@ -83,6 +80,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.It
             CornerRadius = 7.5f;
             AutoSizeAxes = Axes.Y;
             Width = SinglePanelWidth;
+            Anchor = Origin = Anchor.TopRight;
         }
 
         [BackgroundDependencyLoader]
@@ -131,30 +129,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.It
             if (!haveIconSet) SpriteIcon.Icon = DefaultIcon;
 
             sampleOnClick = audio.Samples.Get("UI/default-select");
-        }
-
-        protected override void LoadComplete()
-        {
-            tabpos.BindValueChanged(onTabPositionChanged, true);
-            base.LoadComplete();
-        }
-
-        private void onTabPositionChanged(ValueChangedEvent<TabControlPosition> v)
-        {
-            switch (v.NewValue)
-            {
-                case TabControlPosition.Left:
-                    Anchor = Origin = Anchor.TopLeft;
-                    break;
-
-                case TabControlPosition.Right:
-                    Anchor = Origin = Anchor.TopRight;
-                    break;
-
-                case TabControlPosition.Top:
-                    Anchor = Origin = Anchor.TopCentre;
-                    break;
-            }
         }
 
         protected virtual void OnColorChanged()
