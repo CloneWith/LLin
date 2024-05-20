@@ -67,6 +67,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
 
         public readonly IFunctionProvider Provider;
 
+        protected float ShearStrength => 0.15f;
+
         public BottomBarButton(IFunctionProvider provider = null)
         {
             Size = new Vector2(30);
@@ -74,15 +76,25 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
 
-            if (provider != null)
+            Masking = true;
+            Shear = new Vector2(ShearStrength, 0f);
+            EdgeEffect = new EdgeEffectParameters
             {
-                Icon = provider.Icon;
-                SpriteText.Text = provider.Title;
-                SpriteIcon.Icon = provider.Icon;
-                TooltipText = provider.Description;
-                Size = provider.Size;
-                Provider = provider;
-            }
+                Type = EdgeEffectType.Shadow,
+                Radius = 1.5f,
+                Colour = Color4.Black.Opacity(0.6f),
+                Offset = new Vector2(0, 1.5f)
+            };
+            CornerRadius = 7;
+
+            if (provider == null) return;
+
+            Icon = provider.Icon;
+            SpriteText.Text = provider.Title;
+            SpriteIcon.Icon = provider.Icon;
+            TooltipText = provider.Description;
+            Size = provider.Size;
+            Provider = provider;
         }
 
         [BackgroundDependencyLoader]
@@ -90,27 +102,20 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
         {
             InternalChildren = new Drawable[]
             {
+                BgBox = new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = ColourProvider.Background3
+                },
                 content = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
+                    Shear = new Vector2(-ShearStrength, 0f),
                     Masking = true,
-                    CornerRadius = 5,
-                    EdgeEffect = new EdgeEffectParameters
-                    {
-                        Type = EdgeEffectType.Shadow,
-                        Radius = 1.5f,
-                        Colour = Color4.Black.Opacity(0.6f),
-                        Offset = new Vector2(0, 1.5f)
-                    },
                     Children = new Drawable[]
                     {
-                        BgBox = new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = ColourProvider.Background3
-                        },
                         ContentFillFlow = new FillFlowContainer
                         {
                             Margin = new MarginPadding { Left = 15, Right = 15 },
