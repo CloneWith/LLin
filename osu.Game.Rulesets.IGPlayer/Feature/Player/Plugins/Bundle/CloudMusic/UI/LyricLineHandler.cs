@@ -1,6 +1,9 @@
 #nullable disable
 
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
@@ -36,6 +39,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
         private Easing fadeOutEasing => Easing.OutQuint;
         private Easing fadeInEasing => Easing.OutQuint;
 
+        [CanBeNull]
+        private CancellationTokenSource cancellationTokenSource;
+
         public string Text
         {
             get => currentRawText;
@@ -44,7 +50,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                 currentLine?.MoveToY(5, fadeOutDuration.Value, fadeOutEasing)
                            .FadeOut(fadeOutDuration.Value, fadeOutEasing).Then().Expire();
 
-                lyricContainer.Add(currentLine = new OsuSpriteText
+                cancellationTokenSource?.Cancel();
+                cancellationTokenSource = new CancellationTokenSource();
+
+                LoadComponentAsync(new OsuSpriteText
                 {
                     Text = value,
                     Alpha = 0,
@@ -53,9 +62,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                     Origin = configDirection.Value,
                     Font = OsuFont.GetFont(size: 30, weight: FontWeight.Black),
                     Margin = getMargin(false)
-                });
-                currentLine.MoveToY(0, fadeInDuration.Value, fadeInEasing)
-                           .FadeIn(fadeInDuration.Value, fadeInEasing);
+                }, complete =>
+                {
+                    lyricContainer.Add(complete);
+                    complete.MoveToY(0, fadeInDuration.Value, fadeInEasing)
+                            .FadeIn(fadeInDuration.Value, fadeInEasing);
+
+                    currentLine = complete;
+                }, cancellationTokenSource.Token);
 
                 currentRawText = value;
                 checkIfEmpty();
