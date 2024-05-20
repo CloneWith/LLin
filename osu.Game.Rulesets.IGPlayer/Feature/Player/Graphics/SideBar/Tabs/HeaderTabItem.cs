@@ -34,8 +34,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs
             TooltipText = Value.Title;
 
             Size = new Vector2(45);
-            Anchor = Anchor.TopRight;
-            Origin = Anchor.TopRight;
+            Anchor = Anchor.Centre;
+            Origin = Anchor.Centre;
             Masking = true;
             CornerRadius = 5;
             Children = new Drawable[]
@@ -91,6 +91,13 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs
             isActive = true;
             activeBox.FadeColour(activeColor, 300, Easing.OutQuint);
             icon.Colour = Color4.Black;
+            icon.RotateTo(25, 150, Easing.OutQuint)
+                .Then()
+                .RotateTo(-15, 150, Easing.OutQuint)
+                .Then()
+                .RotateTo(0, 150, Easing.OutQuint);
+
+            this.ScaleTo(1.25f, 150 * 3, Easing.OutQuint);
         }
 
         public void MakeInActive()
@@ -98,6 +105,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs
             isActive = false;
             activeBox.FadeColour(inActiveColor, 300, Easing.OutQuint);
             icon.Colour = Color4.White;
+            this.ScaleTo(1, 150 * 3, Easing.OutQuint);
         }
     }
 }

@@ -64,11 +64,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Internal.DummyBase
                     DisplayAsPercentage = true,
                     KeyboardStep = 0.01f,
                 },
-                new EnumSettingsEntry<TabControlPosition>
-                {
-                    Name = "TabControl位置",
-                    Bindable = config.GetBindable<TabControlPosition>(MSetting.MvisTabControlPosition)
-                },
                 new BooleanSettingsEntry
                 {
                     Name = "置顶Proxy",

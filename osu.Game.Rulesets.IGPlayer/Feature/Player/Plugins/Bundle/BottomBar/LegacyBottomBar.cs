@@ -23,7 +23,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
         private readonly FillFlowContainer<BottomBarButton> leftContent;
         private readonly FillFlowContainer<BottomBarButton> centreContent;
         private readonly FillFlowContainer<BottomBarButton> rightContent;
-        private readonly FillFlowContainer<BottomBarButton> pluginEntriesFillFlow;
+        private readonly FillFlowContainer<BottomBarButton> floatingContent;
 
         private readonly SongProgressBar progressBar;
         private readonly Container contentContainer;
@@ -76,7 +76,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
                             Anchor = Anchor.BottomCentre,
                             Origin = Anchor.BottomCentre,
                             AutoSizeAxes = Axes.Both,
-                            Spacing = new Vector2(5),
+                            Spacing = new Vector2(2.5f),
+                            Scale = new Vector2(1.25f),
                             Margin = new MarginPadding { Bottom = 10 }
                         },
                         rightContent = new FillFlowContainer<BottomBarButton>
@@ -88,7 +89,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
                             Spacing = new Vector2(5),
                             Margin = new MarginPadding { Right = 5, Bottom = 10 }
                         },
-                        pluginEntriesFillFlow = new FillFlowContainer<BottomBarButton>
+                        floatingContent = new FillFlowContainer<BottomBarButton>
                         {
                             Name = "Plugin Entries Container",
                             Anchor = Anchor.BottomCentre,
@@ -96,8 +97,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
                             AutoSizeAxes = Axes.Both,
                             AutoSizeDuration = 300,
                             AutoSizeEasing = Easing.OutQuint,
-                            Spacing = new Vector2(5),
-                            Margin = new MarginPadding { Bottom = 35 + 10 }
+                            Spacing = new Vector2(5)
                         },
                     }
                 },
@@ -121,6 +121,18 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
         {
             progressBar.CurrentTime = LLin!.CurrentTrack.CurrentTime;
             progressBar.EndTime = LLin.CurrentTrack.Length;
+
+            float margin = 0f;
+
+            foreach (var drawable in contentContainer.Children)
+            {
+                if (drawable.Equals(floatingContent)) continue;
+
+                margin = Math.Max(margin, drawable.Margin.Bottom + drawable.Height);
+            }
+
+            floatingContent.Margin = new MarginPadding { Bottom = margin + 15 };
+
             base.Update();
         }
 
@@ -134,7 +146,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
 
         public override void Hide()
         {
-            contentContainer.MoveToY(40, 300, Easing.OutQuint);
+            contentContainer.MoveToY(floatingContent.Margin.Bottom - 5, 300, Easing.OutQuint);
             progressBar.MoveToY(4f, 300, Easing.OutQuint);
         }
 
@@ -150,13 +162,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
         {
             checkForPluginControls(provider);
 
-            var button = provider is IToggleableFunctionProvider
-                ? new BottomBarSwitchButton((IToggleableFunctionProvider)provider)
+            var button = provider is IToggleableFunctionProvider functionProvider
+                ? new BottomBarSwitchButton(functionProvider)
                 : new BottomBarButton(provider);
 
             switch (provider.Type)
             {
                 case FunctionType.Audio:
+                    button.ShearStrength = 0.1f;
                     centreContent.Add(button);
                     break;
 
@@ -169,12 +182,18 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
                     break;
 
                 case FunctionType.Plugin:
-                    pluginEntriesFillFlow.Add(button);
+                    floatingContent.Add(button);
                     break;
 
                 case FunctionType.ProgressDisplay:
                     button.Dispose();
-                    centreContent.Add(new SongProgressButton((IToggleableFunctionProvider)provider));
+
+                    var newButton = new SongProgressButton((IToggleableFunctionProvider)provider)
+                    {
+                        ShearStrength = 0.1f
+                    };
+
+                    centreContent.Add(newButton);
                     break;
 
                 default:
@@ -205,7 +224,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
             leftContent.Clear();
             centreContent.Clear();
             rightContent.Clear();
-            pluginEntriesFillFlow.Clear();
+            floatingContent.Clear();
 
             return AddFunctionControls(providers);
         }
@@ -232,7 +251,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
                     break;
 
                 case FunctionType.Plugin:
-                    target = pluginEntriesFillFlow.FirstOrDefault(b => b.Provider == provider);
+                    target = floatingContent.FirstOrDefault(b => b.Provider == provider);
                     break;
 
                 default:
@@ -250,7 +269,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar
                 throw new ButtonNotFoundException(provider);
         }
 
-        public void ShowFunctionControlTemporary() => pluginEntriesFillFlow.FadeIn(500, Easing.OutQuint).Then().Delay(2000).FadeOut(500, Easing.OutQuint);
+        public void ShowFunctionControlTemporary() => floatingContent.FadeIn(500, Easing.OutQuint).Then().Delay(2000).FadeOut(500, Easing.OutQuint);
 
         public List<IPluginFunctionProvider> GetAllPluginFunctionButton() => pluginButtons;
         public Action? OnDisable { get; set; }

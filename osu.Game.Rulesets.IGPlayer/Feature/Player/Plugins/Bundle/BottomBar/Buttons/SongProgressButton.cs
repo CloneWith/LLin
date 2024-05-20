@@ -25,11 +25,28 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
             AutoSizeAxes = Axes.X;
         }
 
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            mvis.OnBeatmapChanged(b => lastSecond = -1, this, true);
+
+            if (this.outerContent != null)
+            {
+                this.outerContent.RelativeSizeAxes = Axes.Y;
+                this.outerContent.AutoSizeAxes = Axes.X;
+            }
+        }
+
+        private int lastSecond;
+
         protected override void Update()
         {
             base.Update();
 
             int currentSecond = (int)Math.Floor(track.CurrentTime / 1000.0);
+            if (lastSecond == currentSecond) return;
+
+            lastSecond = currentSecond;
             timeCurrent = formatTime(TimeSpan.FromSeconds(currentSecond));
             timeTotal = formatTime(TimeSpan.FromMilliseconds(track.Length));
             Title = $"{timeCurrent} / {timeTotal}";

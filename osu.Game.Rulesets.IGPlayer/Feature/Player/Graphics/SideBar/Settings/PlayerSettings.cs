@@ -27,8 +27,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings
             Direction = FillDirection.Vertical
         };
 
-        private Bindable<TabControlPosition> currentTabPosition;
-
         public string Title => "播放器设置";
         public IconUsage Icon { get; } = FontAwesome.Solid.Cog;
 
@@ -44,9 +42,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings
                 if (pluginManager.GetSettingsFor(pl)?.Length > 0)
                     AddSection(new NewPluginSettingsSection(pl));
             }
-
-            currentTabPosition = config.GetBindable<TabControlPosition>(MSetting.MvisTabControlPosition);
-            currentTabPosition.BindValueChanged(onTabPositionChanged, true);
         }
 
         private void onTabPositionChanged(ValueChangedEvent<TabControlPosition> v)

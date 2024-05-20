@@ -65,7 +65,10 @@ namespace osu.Game.Rulesets.IGPlayer.Helper.Configuration
             SetDefault(MSetting.MvisInterfaceBlue, value: 255f, 0, 255f);
             SetDefault(MSetting.MvisCurrentAudioProvider, "DummyAudioPlugin@osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Internal.DummyAudio");
             SetDefault(MSetting.MvisCurrentFunctionBar, "LegacyBottomBar@osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar");
+
+            // Obsolete
             SetDefault(MSetting.MvisTabControlPosition, TabControlPosition.Right);
+
             SetDefault(MSetting.MvisAutoVSync, true);
             SetDefault(MSetting.MvisPlayerSettingsMaxWidth, 0.6f, 0.2f, 1f);
             SetDefault(MSetting.MvisUseTriangleV2, false);
@@ -137,7 +140,10 @@ namespace osu.Game.Rulesets.IGPlayer.Helper.Configuration
         MvisInterfaceRed,
         MvisInterfaceGreen,
         MvisInterfaceBlue,
+
+        [Obsolete]
         MvisTabControlPosition,
+
         SamplePlaybackGain,
         SongSelectBgBlur,
         IntroLoadDirectToSongSelect,

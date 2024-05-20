@@ -1,6 +1,5 @@
 #nullable disable
 
-using System;
 using System.Numerics;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;

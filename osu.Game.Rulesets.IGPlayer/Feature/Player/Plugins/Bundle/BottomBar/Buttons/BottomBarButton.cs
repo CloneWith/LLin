@@ -1,11 +1,11 @@
 #nullable disable
 
+using JetBrains.Annotations;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
-using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
@@ -41,8 +41,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
 
         protected Box BgBox;
         private Box flashBox;
+
+        private IconUsage emptyIcon => new();
+
+        [CanBeNull]
         private Container content;
-        private IconUsage emptyIcon => new IconUsage();
+
+        [CanBeNull]
+        protected Container outerContent;
 
         public LocalisableString TooltipText { get; set; }
 
@@ -67,6 +73,25 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
 
         public readonly IFunctionProvider Provider;
 
+        private float shearStrength;
+
+        public float ShearStrength
+        {
+            get => shearStrength;
+            set
+            {
+                shearStrength = value;
+                this.Schedule(() =>
+                {
+                    if (outerContent != null)
+                        outerContent.Shear = new Vector2(ShearStrength, 0f);
+
+                    if (content != null)
+                        content.Shear = new Vector2(-ShearStrength, 0f);
+                });
+            }
+        }
+
         public BottomBarButton(IFunctionProvider provider = null)
         {
             Size = new Vector2(30);
@@ -74,44 +99,44 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
 
-            if (provider != null)
-            {
-                Icon = provider.Icon;
-                SpriteText.Text = provider.Title;
-                SpriteIcon.Icon = provider.Icon;
-                TooltipText = provider.Description;
-                Size = provider.Size;
-                Provider = provider;
-            }
+            if (provider == null) return;
+
+            Icon = provider.Icon;
+            SpriteText.Text = provider.Title;
+            SpriteIcon.Icon = provider.Icon;
+            TooltipText = provider.Description;
+            Size = provider.Size;
+            Provider = provider;
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            InternalChildren = new Drawable[]
+            InternalChild = outerContent = new Container
             {
-                content = new Container
+                Masking = true,
+                Shear = new Vector2(ShearStrength, 0f),
+                CornerRadius = 7,
+                BorderThickness = 2,
+                RelativeSizeAxes = Axes.Both,
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+
+                Children = new Drawable[]
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Masking = true,
-                    CornerRadius = 5,
-                    EdgeEffect = new EdgeEffectParameters
+                    BgBox = new Box
                     {
-                        Type = EdgeEffectType.Shadow,
-                        Radius = 1.5f,
-                        Colour = Color4.Black.Opacity(0.6f),
-                        Offset = new Vector2(0, 1.5f)
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = ColourProvider.Background3
                     },
-                    Children = new Drawable[]
+                    content = new Container
                     {
-                        BgBox = new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = ColourProvider.Background3
-                        },
-                        ContentFillFlow = new FillFlowContainer
+                        RelativeSizeAxes = Axes.Both,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Shear = new Vector2(-ShearStrength, 0f),
+                        Masking = true,
+                        Child = ContentFillFlow = new FillFlowContainer
                         {
                             Margin = new MarginPadding { Left = 15, Right = 15 },
                             AutoSizeAxes = Axes.X,
@@ -120,16 +145,16 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
                             Origin = Anchor.Centre,
                             Spacing = new Vector2(5),
                             Direction = FillDirection.Horizontal
-                        },
-                        flashBox = new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.White,
-                            Alpha = 0,
                         }
-                    }
-                },
-                new HoverClickSounds()
+                    },
+                    flashBox = new Box
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Color4.White,
+                        Alpha = 0,
+                    },
+                    new HoverClickSounds()
+                }
             };
 
             if (!Icon.Equals(emptyIcon))
@@ -148,20 +173,21 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
             colourProvider.HueColour.BindValueChanged(_ =>
             {
                 BgBox.Colour = ColourProvider.Background3;
-            });
+                outerContent.BorderColour = ColourInfo.GradientVertical(colourProvider.Background3, colourProvider.Background1);
+            }, true);
         }
 
         protected override bool OnMouseDown(MouseDownEvent e)
         {
             var mouseSpace = ToLocalSpace(e.ScreenSpaceMousePosition);
 
-            content.ScaleTo(0.9f, 2000, Easing.OutQuint);
+            outerContent.ScaleTo(0.9f, 2000, Easing.OutQuint);
             return base.OnMouseDown(e);
         }
 
         protected override void OnMouseUp(MouseUpEvent e)
         {
-            content.ScaleTo(1f, 1000, Easing.OutElastic);
+            outerContent.ScaleTo(1f, 1000, Easing.OutElastic);
             flashBox.FadeOut(1000, Easing.OutQuint);
 
             base.OnMouseUp(e);

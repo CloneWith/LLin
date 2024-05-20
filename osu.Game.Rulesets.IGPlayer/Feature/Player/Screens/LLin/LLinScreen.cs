@@ -22,6 +22,7 @@ using osu.Framework.Screens;
 using osu.Framework.Timing;
 using osu.Game.Beatmaps;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Input;
 using osu.Game.Input.Bindings;
@@ -423,7 +424,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.LLin
             if (!loadingList.Contains(pl) || !pluginManager.GetAllPlugins(false).Contains(pl)) return false;
 
             loadingList.Remove(pl);
-            if (loadingList.Count == 0) loadingSpinner.Hide();
+            if (loadingList.Count == 0) loadingIndicator.Hide();
             return true;
         }
 
@@ -432,7 +433,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.LLin
             if (loadingList.Contains(pl) || !pluginManager.GetAllPlugins(false).Contains(pl)) return false;
 
             loadingList.Add(pl);
-            loadingSpinner.Show();
+            loadingIndicator.Show();
             return true;
         }
 
@@ -604,7 +605,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.LLin
         private readonly Container foregroundLayer;
         private readonly Container overlayLayer;
 
-        private LoadingSpinner loadingSpinner = null!;
+        private LoadingIndicator loadingIndicator = null!;
 
         private readonly ModNightcore<HitObject>.NightcoreBeatContainer nightcoreBeatContainer = new ModNightcore<HitObject>.NightcoreBeatContainer();
 
@@ -807,15 +808,33 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.LLin
 
             overlayLayer.AddRange(new Drawable[]
             {
-                nightcoreBeatContainer,
-                sidebar,
-                tabControl,
-                loadingSpinner = new LoadingSpinner(true, true)
+                loadingIndicator = new LoadingIndicator
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
-                    Margin = new MarginPadding(115)
-                }
+                    Size = new Vector2(100),
+                    Margin = new MarginPadding { Bottom = 125 }
+                },
+                new OsuAnimatedButton
+                {
+                    Size = new Vector2(125, 125),
+                    Child = new OsuSpriteText
+                    {
+                        Text = "Toggle",
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                    },
+                    Action = () =>
+                    {
+                        if (loadingIndicator.Displaying)
+                            loadingIndicator.Hide();
+                        else
+                            loadingIndicator.Show();
+                    }
+                },
+                nightcoreBeatContainer,
+                sidebar,
+                tabControl,
             });
 
             backgroundLayer.Add(backgroundTriangles);

@@ -20,9 +20,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection.Si
 {
     public partial class CollectionPluginPage : PluginSidebarPage
     {
-        //[Resolved]
-        //private CollectionManager collectionManager { get; set; }
-
         [Resolved]
         private IImplementLLin mvisScreen { get; set; } = null!;
 
@@ -54,14 +51,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection.Si
         public override IPluginFunctionProvider GetFunctionEntry() => new CollectionFunctionProvider(this);
         public override Key ShortcutKey => Key.Period;
 
-        private Bindable<TabControlPosition> tabControlPos = null!;
-
         [BackgroundDependencyLoader]
         private void load(MConfigManager config)
         {
             dependencies.Cache(collectionHelper);
-
-            tabControlPos = config.GetBindable<TabControlPosition>(MSetting.MvisTabControlPosition);
 
             Children = new Drawable[]
             {
@@ -108,21 +101,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection.Si
             selectedCollection.BindValueChanged(updateSelection);
             selectedPanel.BindValueChanged(updateSelectedPanel);
 
-            tabControlPos.BindValueChanged(v =>
-            {
-                switch (v.NewValue)
-                {
-                    case TabControlPosition.Left:
-                        scrollContainer.Anchor = scrollContainer.Origin = Anchor.TopRight;
-                        info.Anchor = info.Origin = Anchor.TopLeft;
-                        break;
-
-                    default:
-                        scrollContainer.Anchor = scrollContainer.Origin = Anchor.TopLeft;
-                        info.Anchor = info.Origin = Anchor.TopRight;
-                        break;
-                }
-            });
+            scrollContainer.Anchor = scrollContainer.Origin = Anchor.TopLeft;
+            info.Anchor = info.Origin = Anchor.TopRight;
 
             RefreshCollectionList();
             mvisScreen.Resuming += RefreshCollectionList;
