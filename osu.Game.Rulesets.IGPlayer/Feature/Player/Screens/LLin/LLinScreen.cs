@@ -816,6 +816,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.LLin
                     Size = new Vector2(100),
                     Margin = new MarginPadding { Bottom = 125 }
                 },
+#if DEBUG
                 new OsuAnimatedButton
                 {
                     Size = new Vector2(125, 125),
@@ -833,6 +834,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.LLin
                             loadingIndicator.Show();
                     }
                 },
+#endif
                 nightcoreBeatContainer,
                 sidebar,
                 tabControl,
