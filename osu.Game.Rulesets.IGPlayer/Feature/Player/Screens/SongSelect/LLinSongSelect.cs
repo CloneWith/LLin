@@ -54,7 +54,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.SongSelect
             SampleConfirm?.Play();
 
             if (startAtZero)
-                musicController.SeekTo(0);
+                musicController.CurrentTrack.SeekAsync(-1000);
 
             this.Exit();
         }

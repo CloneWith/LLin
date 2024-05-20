@@ -1,4 +1,4 @@
-# IGPlayer
+# Hikariii
 向osu!添加播放器以及Sayobot加速下载功能
 
 ## 安装方法

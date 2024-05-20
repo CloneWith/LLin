@@ -125,10 +125,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
         {
             try
             {
-                if (beatmapTrack.IsRunning)
-                    beatmapTrack.Stop();
+                if (currentTrack.IsRunning)
+                    currentTrack.Stop();
                 else
-                    beatmapTrack.Start();
+                    currentTrack.Start();
             }
             catch (Exception e)
             {
@@ -152,7 +152,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
             return true;
         }
 
-        private ITrack beatmapTrack = null!;
+        private ITrack currentTrack => b.Value.Track;
 
         private bool isCurrent;
 
@@ -165,7 +165,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
                 {
                     var track = b.Value.Track;
 
-                    beatmapTrack = track;
                     track.Completed += () =>
                     {
                         if (IsCurrent) Schedule(() => NextTrack());
@@ -186,7 +185,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.Collection
             b.Disabled = false;
             b.Value = working;
             b.Disabled = IsCurrent;
-            beatmapTrack = track;
             track.Completed += () =>
             {
                 if (IsCurrent) Schedule(() => NextTrack());

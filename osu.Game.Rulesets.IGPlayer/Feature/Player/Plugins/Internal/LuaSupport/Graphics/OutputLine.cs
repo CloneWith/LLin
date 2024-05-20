@@ -12,6 +12,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osuTK.Graphics;
+using SDL;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Internal.LuaSupport.Graphics
 {
@@ -125,7 +126,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Internal.LuaSupport.
         {
             new OsuMenuItem("复制", MenuItemType.Standard, () =>
             {
-                SDL2.SDL.SDL_SetClipboardText(Content);
+                SDL3.SDL_SetClipboardText(Content);
             })
         };
     }
