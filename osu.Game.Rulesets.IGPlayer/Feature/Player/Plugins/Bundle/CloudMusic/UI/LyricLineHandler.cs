@@ -53,23 +53,29 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                 cancellationTokenSource?.Cancel();
                 cancellationTokenSource = new CancellationTokenSource();
 
-                LoadComponentAsync(new OsuSpriteText
+                Schedule(() =>
                 {
-                    Text = value,
-                    Alpha = 0,
-                    Y = -5,
-                    Anchor = configDirection.Value,
-                    Origin = configDirection.Value,
-                    Font = OsuFont.GetFont(size: 30, weight: FontWeight.Black),
-                    Margin = getMargin(false)
-                }, complete =>
-                {
-                    lyricContainer.Add(complete);
-                    complete.MoveToY(0, fadeInDuration.Value, fadeInEasing)
-                            .FadeIn(fadeInDuration.Value, fadeInEasing);
+                    if (cancellationTokenSource.Token.IsCancellationRequested)
+                        return;
 
-                    currentLine = complete;
-                }, cancellationTokenSource.Token);
+                    LoadComponentAsync(new OsuSpriteText
+                    {
+                        Text = value,
+                        Alpha = 0,
+                        Y = -5,
+                        Anchor = configDirection.Value,
+                        Origin = configDirection.Value,
+                        Font = OsuFont.GetFont(size: 30, weight: FontWeight.Black),
+                        Margin = getMargin(false)
+                    }, complete =>
+                    {
+                        lyricContainer.Add(complete);
+                        complete.MoveToY(0, fadeInDuration.Value, fadeInEasing)
+                                .FadeIn(fadeInDuration.Value, fadeInEasing);
+
+                        currentLine = complete;
+                    }, cancellationTokenSource.Token);
+                });
 
                 currentRawText = value;
                 checkIfEmpty();
