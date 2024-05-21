@@ -1,5 +1,8 @@
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
+using osu.Framework.Graphics.Effects;
 using osu.Framework.Input.Events;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Interfaces.Plugins;
 using osuTK.Graphics;
@@ -14,6 +17,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
 
         protected Color4 ActivateColor => ColourProvider.Highlight1;
         protected Color4 InActivateColor => ColourProvider.Background3;
+        protected Color4 ActivateColorBorder => ActivateColor.Lighten(0.25f);
+        protected Colour4 InActivateColorBorder => ColourProvider.Background1;
 
         public BottomBarSwitchButton(IToggleableFunctionProvider provider)
             : base(provider)
@@ -40,24 +45,23 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
 
         protected override bool OnClick(ClickEvent e)
         {
-            if (Value.Disabled)
-            {
-                this.FlashColour(Color4.Red, 1000, Easing.OutQuint);
-                return false;
-            }
+            if (!Value.Disabled) return base.OnClick(e);
 
-            return base.OnClick(e);
+            this.FlashColour(Color4.Red, 1000, Easing.OutQuint);
+            return false;
         }
 
         private void updateVisuals(bool animate = false)
         {
-            var duration = animate ? 500 : 0;
+            int duration = animate ? 500 : 0;
 
             switch (Value.Value)
             {
                 case true:
                     BgBox.FadeColour(ActivateColor, duration, Easing.OutQuint);
                     ContentFillFlow.FadeColour(Colour4.Black, duration, Easing.OutQuint);
+                    outerContent!.BorderColour = ColourInfo.GradientVertical(ActivateColor, ActivateColorBorder);
+
                     if (animate)
                         OnToggledOnAnimation();
                     break;
@@ -65,6 +69,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.BottomBar.But
                 case false:
                     BgBox.FadeColour(InActivateColor, duration, Easing.OutQuint);
                     ContentFillFlow.FadeColour(Colour4.White, duration, Easing.OutQuint);
+                    outerContent!.BorderColour = ColourInfo.GradientVertical(InActivateColor, InActivateColorBorder);
                     break;
             }
         }

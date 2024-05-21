@@ -1,5 +1,6 @@
 #nullable disable
 
+using System;
 using System.Numerics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -11,7 +12,7 @@ using Vector2 = osuTK.Vector2;
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.Items
 {
     public partial class SettingsSlider<T> : OsuSliderBar<T>
-        where T : struct, INumber<T>, IMinMaxValue<T>
+        where T : struct, INumber<T>, IMinMaxValue<T>, IConvertible
     {
         private Container circle;
 
