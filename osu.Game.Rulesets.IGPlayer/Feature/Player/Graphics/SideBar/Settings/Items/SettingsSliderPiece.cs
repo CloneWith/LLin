@@ -1,5 +1,6 @@
 #nullable disable
 
+using System;
 using System.Numerics;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -9,7 +10,7 @@ using osu.Framework.Localisation;
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.Items
 {
     public partial class SettingsSliderPiece<T> : SettingsPieceBasePanel, ISettingsItem<T>
-        where T : struct, INumber<T>, IMinMaxValue<T>
+        where T : struct, INumber<T>, IMinMaxValue<T>, IConvertible
     {
         public Bindable<T> Bindable { get; set; }
 

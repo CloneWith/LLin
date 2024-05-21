@@ -80,7 +80,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SettingsItems
     }
 
     public class NumberSettingsEntry<T> : SettingsEntry
-        where T : struct, INumber<T>, IMinMaxValue<T>
+        where T : struct, INumber<T>, IMinMaxValue<T>, IConvertible
     {
         public bool DisplayAsPercentage = false;
         public float KeyboardStep = 0.1f;

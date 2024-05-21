@@ -15,7 +15,6 @@ using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Helper
 using osu.Game.Rulesets.IGPlayer.Localisation.LLin.Plugins;
 using osuTK;
 using osuTK.Graphics;
-using SDL;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Sidebar.Graphic
 {
@@ -190,7 +189,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                             TooltipText = "复制谱面参考信息",
                             Action = () =>
                             {
-                                SDL3.SDL_SetClipboardText(resolveBeatmapVerboseString(plugin.CurrentWorkingBeatmap));
+                                SDL2.SDL.SDL_SetClipboardText(resolveBeatmapVerboseString(plugin.CurrentWorkingBeatmap));
                                 llin.PostNotification(plugin, FontAwesome.Regular.CheckCircle, "复制成功！");
                             },
                             Icon = FontAwesome.Solid.Clipboard
