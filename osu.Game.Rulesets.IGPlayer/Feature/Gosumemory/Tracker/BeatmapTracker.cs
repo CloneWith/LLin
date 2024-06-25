@@ -71,6 +71,8 @@ public partial class BeatmapTracker : AbstractTracker
     {
         base.LoadComplete();
 
+        clearCache(staticRoot());
+
         this.beatmap.BindValueChanged(e =>
         {
             this.onBeatmapChanged(e.NewValue);
@@ -278,6 +280,9 @@ public partial class BeatmapTracker : AbstractTracker
 
             foreach (var fileInfo in dirInfo.GetFiles())
                 fileInfo.Delete();
+
+            var server = Hub.GetWsLoader()?.Server;
+            server?.ClearStaticContent();
         }
         catch (Exception e)
         {
@@ -296,7 +301,7 @@ public partial class BeatmapTracker : AbstractTracker
         try
         {
             var server = Hub.GetWsLoader()?.Server;
-            server?.RemoveStaticContent(staticRoot());
+            server?.ClearStaticContent();
             server?.AddStaticContent(staticRoot(), "/Songs");
         }
         catch (Exception e)

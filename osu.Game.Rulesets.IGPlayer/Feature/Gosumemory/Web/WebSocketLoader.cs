@@ -145,7 +145,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Web
             {
                 timeout ??= TimeSpan.FromHours(1.0);
 
-                this.Cache.Clear();
                 this.Cache.InsertPath(path, prefix, filter, timeout.Value, handler);
 
                 static bool handler(FileCache cache, string key, byte[] value, TimeSpan timespan)
