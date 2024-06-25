@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
-using osu.Framework.Timing;
-using osu.Game.Beatmaps;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Data;
@@ -43,7 +40,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory
         {
             Logging.Log("Gosumemoty Compat!");
 
-            this.Clock = new FramedClock(null, false);
+            //this.Clock = new FramedClock(null, false);
 
             this.addTrackerRange(new AbstractTracker[]
             {
@@ -97,9 +94,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory
 
         [Resolved]
         private MusicController musicController { get; set; } = null!;
-
-        [Resolved]
-        private Bindable<WorkingBeatmap> workingBeatmap { get; set; } = null!;
 
         [Resolved]
         private OsuGame osuGame { get; set; } = null!;
