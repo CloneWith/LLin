@@ -146,7 +146,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory
                     NullValueHandling = NullValueHandling.Include
                 });
 
-                this.wsLoader.Boardcast(str);
+                this.wsLoader.Broadcast(str);
             }
             catch (Exception e)
             {

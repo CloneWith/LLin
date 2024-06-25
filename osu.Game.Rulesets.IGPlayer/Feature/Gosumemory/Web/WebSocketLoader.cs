@@ -34,7 +34,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Web
             startServer();
         }
 
-        public void Boardcast(string text)
+        public void Broadcast(string text)
         {
             if (Server == null) throw new NullDependencyException("Server not initialized");
 
