@@ -96,6 +96,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 }
             }
 
+            //TODO: 实现新版网易云API的查询
+            if (true)
+            {
+                setState(SearchState.Success);
+                searchOption.OnFinish?.Invoke(new APILyricResponseRoot());
+                return;
+            }
+
             encoder ??= UrlEncoder.Default;
 
             //处理之前的请求
@@ -125,7 +133,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 if (currentSearchRequest == req)
                     setState(SearchState.Fail);
 
-                string message = "查询歌曲失败";
+                string message = "[LyricProcessor] 查询歌曲失败";
 
                 if (e is HttpRequestException)
                     message += ", 未能送达http请求, 请检查当前网络以及代理";
@@ -133,6 +141,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 Logging.LogError(e, message);
                 onFail?.Invoke(e.ToString());
             };
+
             req.PerformAsync(cancellationTokenSource.Token).ConfigureAwait(false);
 
             currentSearchRequest = req;
