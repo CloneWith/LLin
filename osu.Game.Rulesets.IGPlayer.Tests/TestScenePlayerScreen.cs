@@ -56,9 +56,7 @@ public partial class TestScenePlayerScreen : OsuTestScene
 
         cacheAndAdd(new IdleTracker(6000));
 
-        var receptor = new BackButton.Receptor();
-        cacheAndAdd(receptor);
-        cacheAndAdd(backButton = new BackButton(receptor)
+        cacheAndAdd(backButton = new BackButton()
         {
             Anchor = Anchor.BottomLeft,
             Origin = Anchor.BottomLeft

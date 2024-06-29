@@ -87,7 +87,7 @@ public partial class GameScreenInjector : AbstractInjector
         }
     }
 
-    private void pushPlayerScreen()
+    private void pushPlayerScreen(MainMenuButton? button)
     {
         game.PerformFromScreen(s => s.Push(new LLinScreen()), new[]
         {
@@ -180,7 +180,7 @@ public partial class GameScreenInjector : AbstractInjector
 
             footer.AddButton(new FooterButtonOpenInMvis
             {
-                Action = pushPlayerScreen
+                Action = () => this.pushPlayerScreen(null)
             }, null);
 
             currentPlaySongSelect = playSongSelect;

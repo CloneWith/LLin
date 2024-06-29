@@ -45,7 +45,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.SandboxToPane
             public Header(string label)
             {
                 Label = label;
-                Enabled.Value = true;
+                //Enabled.Value = true;
             }
         }
 
