@@ -96,14 +96,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 }
             }
 
-            //TODO: 实现新版网易云API的查询
-            if (true)
-            {
-                setState(SearchState.Success);
-                searchOption.OnFinish?.Invoke(new APILyricResponseRoot());
-                return;
-            }
-
             encoder ??= UrlEncoder.Default;
 
             //处理之前的请求
