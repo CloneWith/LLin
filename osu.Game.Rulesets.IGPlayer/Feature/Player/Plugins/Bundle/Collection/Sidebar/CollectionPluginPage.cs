@@ -8,7 +8,6 @@ using osu.Game.Beatmaps;
 using osu.Game.Collections;
 using osu.Game.Graphics.Containers;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics;
-using osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Interfaces;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Interfaces.Plugins;
 using osu.Game.Rulesets.IGPlayer.Helper.Configuration;

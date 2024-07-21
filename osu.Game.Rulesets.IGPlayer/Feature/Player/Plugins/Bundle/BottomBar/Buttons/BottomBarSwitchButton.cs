@@ -2,7 +2,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
-using osu.Framework.Graphics.Effects;
 using osu.Framework.Input.Events;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Interfaces.Plugins;
 using osuTK.Graphics;
