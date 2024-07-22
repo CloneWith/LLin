@@ -22,7 +22,14 @@ public class GosuSession : WsSession
         string path = request.Url ?? "/";
 
         // 跳过favicon.ico
-        if (path == "/favicon.ico") return;
+        if (path == "/favicon.ico")
+        {
+            var response = new HttpResponse();
+            response.SetBegin(404);
+
+            this.SendResponse(response);
+            return;
+        }
 
         if (!path.EndsWith("/ws", StringComparison.Ordinal)
             && !path.EndsWith("/json", StringComparison.Ordinal))
