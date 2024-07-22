@@ -22,11 +22,20 @@ public class GosuSession : WsSession
         string path = request.Url ?? "/";
 
         // 跳过favicon.ico
-        if (path == "/favicon.ico") return;
+        if (path == "/favicon.ico")
+        {
+            var response = new HttpResponse();
+            response.SetBegin(404);
+
+            this.SendResponse(response);
+            return;
+        }
 
         if (!path.EndsWith("/ws", StringComparison.Ordinal)
             && !path.EndsWith("/json", StringComparison.Ordinal))
         {
+            //Logging.Log("Received FILE？ request " + request.Url);
+
             HttpResponse response = new HttpResponse();
             response.SetBegin(200);
 
@@ -66,17 +75,76 @@ public class GosuSession : WsSession
                 string storagePath = Path.Combine("gosu_statics", urlPath);
 
                 // 目标存储的绝对位置
-                string targetLocalStorage = storage.GetFullPath(storagePath);
+                string targetFilePath = storage.GetFullPath(storagePath);
+
+                //Logging.Log("URLPath is " + urlPath);
+
+                // 处理Songs
+                if (urlPath.StartsWith("Songs", StringComparison.Ordinal))
+                {
+                    string[] split = urlPath.Split("/", 2);
+                    var fileResponse = new HttpResponse();
+
+                    if (split.Length < 2)
+                    {
+                        Logging.Log("Illegal argument, not processing...");
+                        fileResponse.SetBegin(400);
+                        this.SendResponse(fileResponse);
+
+                        return;
+                    }
+
+                    string fileName = split[1].Split("?", 2)[0];
+
+                    byte[] content = gosuServer.FindStaticOrAsset(fileName) ?? new byte[] { };
+
+                    if (content.Length == 0)
+                    {
+                        response.SetBegin(404);
+                        //Logging.Log("404 File Length is " + response.BodyLength);
+
+                        this.SendResponse(response);
+
+                        return;
+                    }
+
+                    fileResponse.SetBegin(200);
+                    response.SetHeader("Cache-Control", stringAndClear)
+                            .SetHeader("Access-Control-Allow-Origin", "*");
+                    response.SetBody(content);
+
+                    //Logging.Log("File Length is " + response.BodyLength);
+
+                    this.SendResponse(response);
+                    return;
+                }
 
                 // 如果要访问文件, 那么不要进行处理
-                if (File.Exists(targetLocalStorage))
+                if (File.Exists(targetFilePath))
                 {
-                    base.OnReceivedRequest(request);
+                    var fileResponse = new HttpResponse();
+                    byte[] content = gosuServer.FindStaticOrAsset(targetFilePath) ?? new byte[] { };
+
+                    if (content.Length == 0)
+                    {
+                        fileResponse.SetBegin(404);
+                        this.SendResponse(response);
+                        return;
+                    }
+
+                    fileResponse.SetBegin(200);
+                    response.SetHeader("Cache-Control", stringAndClear)
+                            .SetHeader("Access-Control-Allow-Origin", "*");
+                    response.SetBody(File.ReadAllBytes(targetFilePath));
+
+                    //Logging.Log("File Length is " + response.BodyLength);
+
+                    this.SendResponse(response);
                     return;
                 }
 
                 // 只当目录存在时遍历其中的内容
-                if (Path.Exists(targetLocalStorage))
+                if (Path.Exists(targetFilePath))
                 {
                     try
                     {
@@ -107,16 +175,20 @@ public class GosuSession : WsSession
 
             response.SetBody(htmlCode);
             this.SendResponse(response);
+
+            //Logging.Log("Sending " + response.Body);
         }
         else
         {
+            //Logging.Log("Received WS OR JSON request " + request.Url);
+
             base.OnReceivedRequest(request);
         }
     }
 
     public override void OnWsConnected(HttpRequest request)
     {
-        Logging.Log($"Chat WebSocket session with Id {Id} connected!");
+        Logging.Log($"WebSocket session with Id {Id} connected!");
     }
 
     public override void OnWsDisconnected()

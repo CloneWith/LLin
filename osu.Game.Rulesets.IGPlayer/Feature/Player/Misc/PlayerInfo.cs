@@ -1,5 +1,4 @@
 using System;
-using osu.Framework.Extensions.EnumExtensions;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Misc
 {
@@ -35,7 +34,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Misc
             set
             {
                 //检查是否有非法组合
-                if (value.HasFlagFast(PlayerFlags.None) && value != PlayerFlags.None)
+                if (value.HasFlag(PlayerFlags.None) && value != PlayerFlags.None)
                     throw new InvalidOperationException("PlayerFlags.None不能与其他PlayerFlags一起提供");
 
                 flags = value;

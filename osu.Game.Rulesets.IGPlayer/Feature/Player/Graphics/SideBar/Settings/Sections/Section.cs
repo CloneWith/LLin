@@ -1,13 +1,9 @@
 using System;
-using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
-using osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Tabs;
-using osu.Game.Rulesets.IGPlayer.Helper.Configuration;
 using osuTK;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Graphics.SideBar.Settings.Sections

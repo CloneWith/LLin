@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using NetCoreServer;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
@@ -106,6 +106,35 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Web
 
         public GosuServer? Server;
 
+        public partial class AssetManager
+        {
+            private readonly List<Storage> storages = new List<Storage>();
+
+            public AssetManager(List<Storage> storages)
+            {
+                SetStorages(storages);
+            }
+
+            public void SetStorages(List<Storage> newList)
+            {
+                storages.Clear();
+                storages.AddRange(newList);
+            }
+
+            public byte[] FindAsset(string relativePath)
+            {
+                foreach (var storage in storages)
+                {
+                    if (!storage.Exists(relativePath)) continue;
+
+                    string fullPath = storage.GetFullPath(relativePath);
+                    return File.ReadAllBytes(fullPath);
+                }
+
+                return [];
+            }
+        }
+
         public partial class GosuServer : WsServer
         {
             public GosuServer(IPAddress address, int port)
@@ -113,23 +142,27 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Web
             {
             }
 
-            private Storage? storage;
+            public readonly AssetManager AssetManager = new AssetManager(new List<Storage>());
 
-            public void SetStorage(Storage storage)
+            private Storage staticsStorage;
+
+            public void SetStorage(Storage statics, Storage caches)
             {
-                this.storage = storage;
+                this.staticsStorage = statics;
+
+                AssetManager.SetStorages([statics, caches]);
             }
 
             public Storage? GetStorage()
             {
-                return this.storage;
+                return this.staticsStorage;
             }
 
             protected override TcpSession CreateSession() { return new GosuSession(this); }
 
             protected override void OnError(SocketError error)
             {
-                Logging.Log($"Chat WebSocket server caught an error with code {error}");
+                Logging.Log($"WebSocket server caught an error with code {error}");
             }
 
             public void AddCustomHandler(string path, string urlPath, FileCache.InsertHandler handler)
@@ -138,32 +171,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Web
                 this.Cache.InsertPath(path, urlPath, "*.*", timeout, handler);
             }
 
-            /**
-             * From decompiled HttpServer#AddStaticContent(...)
-             */
+            public byte[]? FindStaticOrAsset(string path)
+            {
+                return this.AssetManager.FindAsset(path);
+            }
+
             public new void AddStaticContent(string path, string prefix = "/", string filter = "*.*", TimeSpan? timeout = null)
             {
-                timeout ??= TimeSpan.FromHours(1.0);
-
-                this.Cache.InsertPath(path, prefix, filter, timeout.Value, handler);
-
-                static bool handler(FileCache cache, string key, byte[] value, TimeSpan timespan)
-                {
-                    var response = new HttpResponse();
-                    response.SetBegin(200);
-                    response.SetContentType(Path.GetExtension(key));
-
-                    var interpolatedStringHandler = new DefaultInterpolatedStringHandler(8, 1);
-                    interpolatedStringHandler.AppendLiteral("max-age=");
-                    interpolatedStringHandler.AppendFormatted(timespan.Seconds);
-
-                    string stringAndClear = interpolatedStringHandler.ToStringAndClear();
-                    response.SetHeader("Cache-Control", stringAndClear);
-                    response.SetHeader("Access-Control-Allow-Origin", "*");
-                    response.SetBody(value);
-
-                    return cache.Add(key, response.Cache.Data, timespan);
-                }
+                throw new Exception("Deprecated operation");
             }
         }
     }

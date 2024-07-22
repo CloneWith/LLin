@@ -231,9 +231,6 @@ public partial class BeatmapTracker : AbstractTracker
                 beatmap.BeatmapInfo.BeatmapSet?.Metadata.AudioFile ?? "",
                 audioFileDesti).ConfigureAwait(false);
 
-            // Await for statics refresh
-            await Task.Run(updateStatics).ConfigureAwait(false);
-
             // Update!
             this.Schedule(() =>
             {
@@ -280,9 +277,6 @@ public partial class BeatmapTracker : AbstractTracker
 
             foreach (var fileInfo in dirInfo.GetFiles())
                 fileInfo.Delete();
-
-            var server = Hub.GetWsLoader()?.Server;
-            server?.ClearStaticContent();
         }
         catch (Exception e)
         {
@@ -296,19 +290,5 @@ public partial class BeatmapTracker : AbstractTracker
     {
         byte[] hash = MD5.HashData(Encoding.Unicode.GetBytes(str));
         return new Guid(hash);
-    }
-
-    private void updateStatics()
-    {
-        try
-        {
-            var server = Hub.GetWsLoader()?.Server;
-            server?.ClearStaticContent();
-            server?.AddStaticContent(staticRoot(), "/Songs");
-        }
-        catch (Exception e)
-        {
-            Logging.LogError(e, "Unable to add cache");
-        }
     }
 }

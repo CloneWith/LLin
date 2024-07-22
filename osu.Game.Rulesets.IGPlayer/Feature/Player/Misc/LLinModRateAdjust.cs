@@ -9,7 +9,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Misc
 {
     internal class LLinModRateAdjust : ModRateAdjust
     {
-        public override string Name => ToString();
+        public override string Name => "LLinRateAdjust";
         public override string Acronym => "RA";
         public override LocalisableString Description => "no";
         public override double ScoreMultiplier => 0;
