@@ -74,8 +74,18 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight
                         },
+                        //TODO: 实现新版查询后移除此文本
+                        new OsuSpriteText
+                        {
+                            Anchor = Anchor.TopRight,
+                            Origin = Anchor.TopRight,
+                            Colour = Color4.Gold,
+                            Text = "在线查询功能暂时不可用，我们正在适配新的网易云音乐API"
+                        },
                         buttonFillFlow = new FillFlowContainer
                         {
+                            //TODO: REMOVE THIS
+                            Scale = new Vector2(0),
                             AutoSizeAxes = Axes.Y,
                             RelativeSizeAxes = Axes.X,
                             Spacing = new Vector2(5),
@@ -136,6 +146,19 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                 });
             }, true);
 
+            //TODO: UNDO THIS
+            contentFillFlow.Add(new SettingsSlider<double>
+            {
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.TopRight,
+                Current = plugin.Offset,
+                LabelText = CloudMusicStrings.LocalOffset,
+                RelativeSizeAxes = Axes.X,
+                Padding = new MarginPadding { Right = 10 }
+            });
+
+            //TODO: UNDO THIS TOO
+            /*
             contentFillFlow.AddRange(new Drawable[]
             {
                 new SettingsSlider<double>
@@ -197,6 +220,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                     }
                 }
             });
+            */
 
             textBox = new OsuTextBox();
             textBox.OnCommit += (sender, isNewText) =>
