@@ -67,7 +67,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory
             Logging.Log("Setting up statics...");
 
             var staticsStorage = globalStorage.GetStorageForDirectory("gosu_statics");
-            string? staticPath = staticsStorage.GetFullPath(".");
+            string? staticPath = staticsStorage.GetFullPath(".", true);
 
             if (staticPath == null || !Directory.Exists(staticPath))
             {
@@ -75,22 +75,16 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory
                 return;
             }
 
-            server.SetStorage(globalStorage);
+            var cacheStorage = globalStorage.GetStorageForDirectory("gosu_caches");
+            string? cachePath = cacheStorage.GetFullPath(".", true);
 
-            DirectoryInfo dirInfo = new DirectoryInfo(staticPath);
-
-            if (!dirInfo.Exists)
+            if (cachePath == null || !Directory.Exists(cachePath))
             {
-                var newDirInfo = Directory.CreateDirectory(staticPath);
-
-                if (!newDirInfo.Exists)
-                {
-                    Logging.Log("Unable to create statics directory, skipping...");
-                    return;
-                }
+                Logging.Log("Cache directory is null or non-exist!");
+                return;
             }
 
-            server.AddStaticContent(staticPath);
+            server.SetStorage(globalStorage, cacheStorage);
             Logging.Log("Done setting up static content!");
         }
 
