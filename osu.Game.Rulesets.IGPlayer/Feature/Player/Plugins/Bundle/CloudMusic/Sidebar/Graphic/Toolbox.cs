@@ -80,7 +80,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
                             Colour = Color4.Gold,
-                            Text = "在线查询功能暂时不可用，我们正在适配新的网易云音乐API"
+                            Text = "在线查询功能暂时不可用，我们正在寻找新的适配方案"
                         },
                         buttonFillFlow = new FillFlowContainer
                         {
