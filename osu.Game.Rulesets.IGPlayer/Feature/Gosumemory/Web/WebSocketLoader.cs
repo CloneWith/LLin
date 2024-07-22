@@ -162,7 +162,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Web
 
             protected override void OnError(SocketError error)
             {
-                Logging.Log($"Chat WebSocket server caught an error with code {error}");
+                Logging.Log($"WebSocket server caught an error with code {error}");
             }
 
             public void AddCustomHandler(string path, string urlPath, FileCache.InsertHandler handler)
