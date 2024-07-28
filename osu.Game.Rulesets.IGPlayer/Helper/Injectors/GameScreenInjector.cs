@@ -5,16 +5,13 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
-using osu.Game.Graphics;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.LLin;
 using osu.Game.Screens;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Select;
 using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Game.Rulesets.IGPlayer.Helper.Injectors;
 
@@ -76,11 +73,6 @@ public partial class GameScreenInjector : AbstractInjector
 
         switch (newscreen)
         {
-            case MainMenu menu when !menuEntryInjected:
-                findButtonSystem(menu);
-                menuEntryInjected = true;
-                break;
-
             case PlaySongSelect playSongSelect:
                 this.Schedule(() => findFooter(playSongSelect));
                 break;
@@ -95,66 +87,6 @@ public partial class GameScreenInjector : AbstractInjector
             typeof(PlaySongSelect)
         });
     }
-
-    #region MainMenu -> ButtonSystem
-
-    private void findButtonSystem(MainMenu menu)
-    {
-        try
-        {
-            const BindingFlags flag = BindingFlags.Instance | BindingFlags.NonPublic;
-
-            if (menu.GetType().GetFields(flag)
-                    .FirstOrDefault(f => f.FieldType == typeof(ButtonSystem))?.GetValue(menu) is not ButtonSystem buttonSystem)
-            {
-                Logging.Log("无法向主界面添加入口, 因为没有找到ButtonSystem", level: LogLevel.Important);
-                return;
-            }
-
-            // Find Multiplayer button
-            var target = this.findChildInContainer(buttonSystem, d => d is MainMenuButton mainMenuButton && mainMenuButton.TriggerKeys.Contains(Key.M));
-
-            if (target == null)
-            {
-                Logging.Log("无法向主界面添加入口, 因为没有找到游玩按钮", level: LogLevel.Important);
-                return;
-            }
-
-            var targetParent = target.Parent as FlowContainerWithOrigin;
-            Logging.Log($"Parent is {target.Parent}");
-            targetParent!.Add(new MainMenuButton("Hikariii播放器", "button-generic-select", OsuIcon.Play, new Color4(0, 86, 73, 255), pushPlayerScreen)
-            {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                VisibleState = ButtonSystemState.Play
-            });
-        }
-        catch (Exception e)
-        {
-            Logging.LogError(e, "向主界面添加入口时出现问题");
-        }
-    }
-
-    private bool menuEntryInjected;
-
-    private Drawable? findChildInContainer(Container container, Func<Drawable, bool> func)
-    {
-        foreach (var containerChild in container.Children)
-        {
-            if (containerChild == null) continue;
-
-            if (func.Invoke(containerChild)) return containerChild;
-
-            if (containerChild is not Container childContainer) continue;
-
-            var childVal = findChildInContainer(childContainer, func);
-            if (childVal != null) return childVal;
-        }
-
-        return null;
-    }
-
-    #endregion
 
     #region PlaySongSelect -> Footer
 
