@@ -66,6 +66,14 @@ public partial class GameScreenInjector : AbstractInjector
 
     private void onScreenSwitch(IScreen lastscreen, IScreen newscreen)
     {
+        if (newscreen is Drawable drawable)
+            drawable.OnLoadComplete += _ => this.processNewScreen(lastscreen, newscreen);
+        else
+            processNewScreen(lastscreen, newscreen);
+    }
+
+    private void processNewScreen(IScreen lastscreen, IScreen newscreen)
+    {
         Logging.Log($"🦢 Screen Changed! {lastscreen} -> {newscreen}", level: LogLevel.Debug);
 
         if (lastscreen == currentPlaySongSelect && newscreen is MainMenu)
@@ -103,10 +111,20 @@ public partial class GameScreenInjector : AbstractInjector
             const BindingFlags flag = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField | BindingFlags.GetProperty | BindingFlags.SetProperty
                                       | BindingFlags.SetField;
 
-            if (playSongSelect.GetType().GetProperties(flag)
-                              .FirstOrDefault(f => f.PropertyType == typeof(Footer))?.GetValue(playSongSelect) is not Footer footer)
+            var property = playSongSelect.GetType().GetProperties(flag)
+                                         .FirstOrDefault(f => f.PropertyType == typeof(Footer)); //?.GetValue(playSongSelect);
+
+            if (property == null)
             {
-                Logging.Log("没有找到Footer", level: LogLevel.Important);
+                Logging.Log("没有找到Footer属性", level: LogLevel.Important);
+                return;
+            }
+
+            object? obj = property.GetValue(playSongSelect);
+
+            if (obj is not Footer footer)
+            {
+                Logging.Log("Footer为null", level: LogLevel.Important);
                 return;
             }
 
