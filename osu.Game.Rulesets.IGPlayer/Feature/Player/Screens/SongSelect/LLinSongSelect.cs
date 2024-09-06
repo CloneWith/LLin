@@ -21,6 +21,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.SongSelect
         [BackgroundDependencyLoader]
         private void load()
         {
+            this.FilterControl.FilterChanged = this.ApplyFilterToCarousel;
+
             musicController.CurrentTrack.Looping = true;
             Beatmap.BindValueChanged(v =>
             {
@@ -28,12 +30,12 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.SongSelect
             });
         }
 
-        protected override void ApplyFilterToCarousel(FilterCriteria criteria)
+        protected void ApplyFilterToCarousel(FilterCriteria criteria)
         {
             criteria.RulesetCriteria = null;
             criteria.Ruleset = null;
 
-            base.ApplyFilterToCarousel(criteria);
+            this.Carousel.Filter(criteria);
         }
 
         private readonly BindableBool startFromZero = new BindableBool();
