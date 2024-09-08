@@ -21,13 +21,19 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Screens.SongSelect
         [BackgroundDependencyLoader]
         private void load()
         {
-            this.FilterControl.FilterChanged = this.ApplyFilterToCarousel;
-
             musicController.CurrentTrack.Looping = true;
             Beatmap.BindValueChanged(v =>
             {
                 startFromZero.Value = !enteringBeatmap.BeatmapSetInfo.Equals(v.NewValue.BeatmapSetInfo);
             });
+        }
+
+        protected override void LoadComplete()
+        {
+            this.FilterControl.FilterChanged = this.ApplyFilterToCarousel;
+            this.ApplyFilterToCarousel(new FilterCriteria());
+
+            base.LoadComplete();
         }
 
         protected void ApplyFilterToCarousel(FilterCriteria criteria)
