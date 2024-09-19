@@ -8,9 +8,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Gosumemory.Web;
 
 public class GosuSession : WsSession
 {
-    private readonly WebSocketLoader.GosuServer gosuServer;
+    private readonly GosuServer gosuServer;
 
-    public GosuSession(WebSocketLoader.GosuServer server)
+    public GosuSession(GosuServer server)
         : base(server)
     {
         this.gosuServer = server;
@@ -81,11 +81,12 @@ public class GosuSession : WsSession
                 if (urlPath.StartsWith("Songs", StringComparison.Ordinal))
                 {
                     string[] split = urlPath.Split("/", 2);
-                    var fileResponse = new HttpResponse();
 
                     if (split.Length < 2)
                     {
                         Logging.Log("Illegal argument, not processing...");
+
+                        var fileResponse = new HttpResponse();
                         fileResponse.SetBegin(400);
                         this.SendResponse(fileResponse);
 
@@ -94,7 +95,7 @@ public class GosuSession : WsSession
 
                     string fileName = split[1].Split("?", 2)[0];
 
-                    byte[] content = gosuServer.FindStaticOrAsset(fileName) ?? new byte[] { };
+                    byte[] content = gosuServer.FindStaticOrAsset(fileName) ?? [];
 
                     if (content.Length == 0)
                     {
@@ -106,7 +107,7 @@ public class GosuSession : WsSession
                         return;
                     }
 
-                    fileResponse.SetBegin(200);
+                    response.SetBegin(200);
                     response.SetHeader("Cache-Control", cache_control_str)
                             .SetHeader("Access-Control-Allow-Origin", "*");
 
