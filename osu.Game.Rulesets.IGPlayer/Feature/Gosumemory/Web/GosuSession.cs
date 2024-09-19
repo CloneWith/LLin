@@ -20,12 +20,9 @@ public class GosuSession : WsSession
     {
         string path = request.Url ?? "/";
 
-        Logging.Log($"Path is {path}");
-
         // 跳过favicon.ico
         if (path == "/favicon.ico")
         {
-            Logging.Log("Skip favicon!");
             var response = new HttpResponse();
             response.SetBegin(404);
 
