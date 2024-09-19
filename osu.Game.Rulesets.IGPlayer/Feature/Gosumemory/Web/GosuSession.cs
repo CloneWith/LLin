@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Text;
 using NetCoreServer;
 
@@ -21,9 +20,12 @@ public class GosuSession : WsSession
     {
         string path = request.Url ?? "/";
 
+        Logging.Log($"Path is {path}");
+
         // 跳过favicon.ico
         if (path == "/favicon.ico")
         {
+            Logging.Log("Skip favicon!");
             var response = new HttpResponse();
             response.SetBegin(404);
 
@@ -39,9 +41,8 @@ public class GosuSession : WsSession
             HttpResponse response = new HttpResponse();
             response.SetBegin(200);
 
-            var interpolatedStringHandler = new DefaultInterpolatedStringHandler(8, 1);
-            string stringAndClear = interpolatedStringHandler.ToStringAndClear();
-            response.SetHeader("Cache-Control", stringAndClear)
+            const string cache_control_str = "public, max-age=0";
+            response.SetHeader("Cache-Control", cache_control_str)
                     .SetHeader("Access-Control-Allow-Origin", "*");
 
             string getLinkUrl(string link, string name) => $"<a href=\"{link}\">{name}</a>";
@@ -109,8 +110,9 @@ public class GosuSession : WsSession
                     }
 
                     fileResponse.SetBegin(200);
-                    response.SetHeader("Cache-Control", stringAndClear)
+                    response.SetHeader("Cache-Control", cache_control_str)
                             .SetHeader("Access-Control-Allow-Origin", "*");
+
                     response.SetBody(content);
 
                     //Logging.Log("File Length is " + response.BodyLength);
@@ -133,8 +135,11 @@ public class GosuSession : WsSession
                     }
 
                     fileResponse.SetBegin(200);
-                    response.SetHeader("Cache-Control", stringAndClear)
+                    response.SetHeader("Cache-Control", cache_control_str)
                             .SetHeader("Access-Control-Allow-Origin", "*");
+
+                    response.SetHeader("Content-Type", MimeTypeMap.GetMimeType(targetFilePath));
+
                     response.SetBody(File.ReadAllBytes(targetFilePath));
 
                     //Logging.Log("File Length is " + response.BodyLength);
