@@ -2,22 +2,20 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Linq;
+using System.Globalization;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Misc
 {
     public static class StringExtensions
     {
-        public static int toMS(this string src)
+        public static int ToMilliseconds(this string src)
         {
             int result;
-            string[] source = src.Split('.');
 
             try
             {
-                result = int.Parse(source.ElementAtOrDefault(0) ?? "0") * 60000
-                         + int.Parse(source.ElementAtOrDefault(1) ?? "0") * 1000
-                         + int.Parse(source.ElementAtOrDefault(2) ?? "0");
+                var timeSpan = TimeSpan.ParseExact($"{src}", @"mm\.ss\.fff", new DateTimeFormatInfo());
+                result = (int)timeSpan.TotalMilliseconds;
             }
             catch (Exception e)
             {

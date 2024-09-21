@@ -70,7 +70,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                         {
                             lyrics.Add(new Lyric
                             {
-                                Time = timeProperty.toMS()
+                                Time = timeProperty.ToMilliseconds()
                             });
                         }
 
@@ -136,7 +136,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                             if (timeProperty[0].IsDigit())
                             {
                                 //添加当前时间到times
-                                times.Add(timeProperty.toMS());
+                                times.Add(timeProperty.ToMilliseconds());
                             }
 
                             //todo: 在此放置对其他属性的处理逻辑

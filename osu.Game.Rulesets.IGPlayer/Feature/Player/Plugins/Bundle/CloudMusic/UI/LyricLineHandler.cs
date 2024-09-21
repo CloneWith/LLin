@@ -68,6 +68,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                         Margin = getMargin(false)
                     }, complete =>
                     {
+                        if (cancellationTokenSource.Token.IsCancellationRequested)
+                            return;
+
                         lyricContainer.Add(complete);
                         complete.MoveToY(0, fadeInDuration.Value, fadeInEasing)
                                 .FadeIn(fadeInDuration.Value, fadeInEasing);
