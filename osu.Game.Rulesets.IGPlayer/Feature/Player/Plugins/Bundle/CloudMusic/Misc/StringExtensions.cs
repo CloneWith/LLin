@@ -11,10 +11,33 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
         public static int ToMilliseconds(this string src)
         {
             int result;
+            string[] spilt = src.Split(".");
+
+            if (spilt.Length < 3)
+            {
+                // ???
+                Logging.Log($"给定的时间不正确：{src}");
+                return int.MaxValue;
+            }
+
+            string formatString = "";
+
+            for (int i = 0; i < spilt[0].Length; i++)
+                formatString += "m";
+
+            formatString += @"\.";
+
+            for (int i = 0; i < spilt[1].Length; i++)
+                formatString += "s";
+
+            formatString += @"\.";
+
+            for (int i = 0; i < spilt[2].Length; i++)
+                formatString += "f";
 
             try
             {
-                var timeSpan = TimeSpan.ParseExact($"{src}", @"mm\.ss\.fff", new DateTimeFormatInfo());
+                var timeSpan = TimeSpan.ParseExact($"{src}", formatString, new DateTimeFormatInfo());
                 result = (int)timeSpan.TotalMilliseconds;
             }
             catch (Exception e)
