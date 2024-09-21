@@ -5,7 +5,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
     public class APISongInfo
     {
         [JsonProperty("id")]
-        public int ID { get; set; }
+        public long ID { get; set; }
 
         [JsonProperty("name")]
         public string? Name { get; set; }

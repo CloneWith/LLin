@@ -35,7 +35,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <summary>
         /// 歌曲ID，未搜到歌曲时返回-1
         /// </summary>
-        public int SongID => (SearchResponseRoot.Result?.Songs?.First().ID ?? -1);
+        public long SongID => (SearchResponseRoot.Result?.Songs?.First().ID ?? -1);
 
         /// <summary>
         /// 获取网易云歌曲标题和搜索标题的相似度
