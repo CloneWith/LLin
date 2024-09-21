@@ -20,20 +20,11 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                 return int.MaxValue;
             }
 
-            string formatString = "";
-
-            for (int i = 0; i < spilt[0].Length; i++)
-                formatString += "m";
-
-            formatString += @"\.";
-
-            for (int i = 0; i < spilt[1].Length; i++)
-                formatString += "s";
-
-            formatString += @"\.";
-
-            for (int i = 0; i < spilt[2].Length; i++)
-                formatString += "f";
+            string formatString = "".PadRight(spilt[0].Length, 'm')
+                                  + @"\."
+                                  + "".PadRight(spilt[1].Length, 's')
+                                  + @"\."
+                                  + "".PadRight(spilt[2].Length, 'f');
 
             try
             {
