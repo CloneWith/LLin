@@ -174,17 +174,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
 
         private void initToolbox()
         {
-            textBox = new OsuTextBox();
-            textBox.OnCommit += (sender, isNewText) =>
-            {
-                if (int.TryParse(sender.Text, out var id))
-                    plugin.GetLyricFor(id);
-                else
-                {
-                    textBox.Text = "";
-                }
-            };
-
             contentFillFlow.AddRange(new Drawable[]
             {
                 new SettingsSlider<double>
@@ -246,6 +235,16 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                     }
                 }
             });
+
+            textBox.OnCommit += (sender, isNewText) =>
+            {
+                if (int.TryParse(sender.Text, out int id))
+                    plugin.GetLyricFor(id);
+                else
+                {
+                    textBox.Text = "";
+                }
+            };
         }
 
         private string resolveBeatmapVerboseString(WorkingBeatmap working)
