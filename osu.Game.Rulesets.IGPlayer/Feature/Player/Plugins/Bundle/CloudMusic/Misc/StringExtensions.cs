@@ -13,18 +13,30 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
             int result;
             string[] spilt = src.Split(".");
 
-            if (spilt.Length < 3)
-            {
-                // ???
-                Logging.Log($"给定的时间不正确：{src}");
-                return int.MaxValue;
-            }
+            string formatString = "";
 
-            string formatString = "".PadRight(spilt[0].Length, 'm')
-                                  + @"\."
-                                  + "".PadRight(spilt[1].Length, 's')
-                                  + @"\."
-                                  + "".PadRight(spilt[2].Length, 'f');
+            for (int i = 0; i < spilt.Length; i++)
+            {
+                int length = spilt[i].Length;
+
+                switch (i)
+                {
+                    case 0:
+                        formatString += new string('m', length);
+                        break;
+
+                    case 1:
+                        formatString += new string('s', length);
+                        break;
+
+                    case 2:
+                        formatString += new string('f', length);
+                        break;
+                }
+
+                if (i < spilt.Length - 1)
+                    formatString += @"\.";
+            }
 
             try
             {
