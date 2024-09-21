@@ -154,7 +154,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <param name="beatmap"></param>
         /// <param name="onFinish"></param>
         /// <param name="onFail"></param>
-        public void SearchByNeteaseID(int id, WorkingBeatmap beatmap, Action<APILyricResponseRoot> onFinish, Action<string> onFail)
+        public void SearchByNeteaseID(long id, WorkingBeatmap beatmap, Action<APILyricResponseRoot> onFinish, Action<string> onFail)
         {
             //处理之前的请求
             cancellationTokenSource?.Cancel();

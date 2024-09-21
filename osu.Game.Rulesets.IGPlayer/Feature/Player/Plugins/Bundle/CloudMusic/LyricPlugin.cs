@@ -180,7 +180,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
             CurrentStatus.Value = Status.Finish;
         }
 
-        public void GetLyricFor(int id)
+        public void GetLyricFor(long id)
         {
             CurrentStatus.Value = Status.Working;
             LyricProcessor.SearchByNeteaseID(id, CurrentWorkingBeatmap, onLyricRequestFinished, onLyricRequestFail);
@@ -283,7 +283,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
             currentResponseRoot = null;
             CurrentLine = null;
 
-            if (UserDefinitionHelper.BeatmapMetaHaveDefinition(CurrentWorkingBeatmap.BeatmapInfo, out int neid))
+            if (UserDefinitionHelper.BeatmapMetaHaveDefinition(CurrentWorkingBeatmap.BeatmapInfo, out long neid))
                 GetLyricFor(neid);
             else if (UserDefinitionHelper.OnlineIDHaveDefinition(CurrentWorkingBeatmap.BeatmapSetInfo.OnlineID, out neid))
                 GetLyricFor(neid);
