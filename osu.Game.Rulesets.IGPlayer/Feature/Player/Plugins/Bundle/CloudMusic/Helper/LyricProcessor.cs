@@ -97,7 +97,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             }
 
             //TODO: 实现新版网易云API的查询
-            if (true)
+            if (LyricPlugin.DisableCloudLookup)
             {
                 setState(SearchState.Success);
                 searchOption.OnFinish?.Invoke(new APILyricResponseRoot());

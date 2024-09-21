@@ -87,7 +87,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
             set
             {
                 currentLineTranslated?.MoveToY(5, fadeOutDuration.Value, fadeOutEasing)
-                                     .FadeOut(fadeOutDuration.Value, fadeOutEasing).Then().Expire();
+                                     .FadeOut(fadeOutDuration.Value, fadeOutEasing)
+                                     .Then()
+                                     .Expire();
 
                 lyricContainer.Add(currentLineTranslated = new OsuSpriteText
                 {

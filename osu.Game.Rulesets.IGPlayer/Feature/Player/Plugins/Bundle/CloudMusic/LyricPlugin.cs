@@ -32,6 +32,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
         /// </summary>
         public override TargetLayer Target => TargetLayer.Foreground;
 
+        public static bool DisableCloudLookup => false;
+
         public override IPluginConfigManager CreateConfigManager(Storage storage)
             => new LyricConfigManager(storage);
 
