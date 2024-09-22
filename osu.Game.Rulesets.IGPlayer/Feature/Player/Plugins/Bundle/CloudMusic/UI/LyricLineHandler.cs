@@ -1,8 +1,5 @@
-#nullable disable
-
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
@@ -19,10 +16,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
 {
     public partial class LyricLineHandler : CompositeDrawable
     {
-        private OsuSpriteText currentLine;
-        private OsuSpriteText currentLineTranslated;
-        private string currentRawText;
-        private string currentRawTranslateText;
+        private OsuSpriteText? currentLine;
+        private OsuSpriteText? currentLineTranslated;
+        private string currentRawText = string.Empty;
+        private string currentRawTranslateText = string.Empty;
         private readonly BufferedContainer outlineEffectContainer;
 
         private readonly Container lyricContainer = new Container
@@ -38,8 +35,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
         private Easing fadeOutEasing => Easing.OutQuint;
         private Easing fadeInEasing => Easing.OutQuint;
 
-        [CanBeNull]
-        private CancellationTokenSource cancellationTokenSource;
+        private CancellationTokenSource? textCancellationTokenSource;
+
+        private CancellationTokenSource? translateTextCancellationTokenSource;
 
         public string Text
         {
@@ -49,14 +47,15 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                 currentLine?.MoveToY(5, fadeOutDuration.Value, fadeOutEasing)
                            .FadeOut(fadeOutDuration.Value, fadeOutEasing).Then().Expire();
 
-                cancellationTokenSource?.Cancel();
-                cancellationTokenSource = new CancellationTokenSource();
+                currentLine = null;
+
+                textCancellationTokenSource?.Cancel();
+
+                var tokenSource = new CancellationTokenSource();
+                textCancellationTokenSource = tokenSource;
 
                 Schedule(() =>
                 {
-                    if (cancellationTokenSource.Token.IsCancellationRequested)
-                        return;
-
                     LoadComponentAsync(new OsuSpriteText
                     {
                         Text = value,
@@ -66,17 +65,17 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                         Origin = configDirection.Value,
                         Font = OsuFont.GetFont(size: 30, weight: FontWeight.Black),
                         Margin = getMargin(false)
-                    }, complete =>
+                    }, text =>
                     {
-                        if (cancellationTokenSource.Token.IsCancellationRequested)
+                        if (tokenSource.Token.IsCancellationRequested)
                             return;
 
-                        lyricContainer.Add(complete);
-                        complete.MoveToY(0, fadeInDuration.Value, fadeInEasing)
-                                .FadeIn(fadeInDuration.Value, fadeInEasing);
+                        lyricContainer.Add(text);
+                        text.MoveToY(0, fadeInDuration.Value, fadeInEasing)
+                            .FadeIn(fadeInDuration.Value, fadeInEasing);
 
-                        currentLine = complete;
-                    }, cancellationTokenSource.Token);
+                        currentLine = text;
+                    }, tokenSource.Token);
                 });
 
                 currentRawText = value;
@@ -94,18 +93,36 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                                      .Then()
                                      .Expire();
 
-                lyricContainer.Add(currentLineTranslated = new OsuSpriteText
+                currentLineTranslated = null;
+
+                this.translateTextCancellationTokenSource?.Cancel();
+
+                var tokenSource = new CancellationTokenSource();
+                this.translateTextCancellationTokenSource = tokenSource;
+
+                Schedule(() =>
                 {
-                    Text = value,
-                    Alpha = 0,
-                    Y = -5,
-                    Font = OsuFont.GetFont(size: 30, weight: FontWeight.Black),
-                    Anchor = configDirection.Value,
-                    Origin = configDirection.Value,
-                    Margin = getMargin(true)
+                    LoadComponentAsync(new OsuSpriteText
+                    {
+                        Text = value,
+                        Alpha = 0,
+                        Y = -5,
+                        Font = OsuFont.GetFont(size: 30, weight: FontWeight.Black),
+                        Anchor = configDirection.Value,
+                        Origin = configDirection.Value,
+                        Margin = getMargin(true)
+                    }, text =>
+                    {
+                        if (tokenSource.Token.IsCancellationRequested)
+                            return;
+
+                        text.MoveToY(0, fadeInDuration.Value, fadeInEasing)
+                            .FadeIn(fadeInDuration.Value, fadeInEasing);
+
+                        lyricContainer.Add(text);
+                        currentLineTranslated = text;
+                    });
                 });
-                currentLineTranslated.MoveToY(0, fadeInDuration.Value, fadeInEasing)
-                                     .FadeIn(fadeInDuration.Value, fadeInEasing);
 
                 currentRawTranslateText = value;
                 checkIfEmpty();

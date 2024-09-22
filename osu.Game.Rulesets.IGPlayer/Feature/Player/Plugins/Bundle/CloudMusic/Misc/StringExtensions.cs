@@ -9,7 +9,16 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
     {
         public static int ToMilliseconds(this string src)
         {
-            string[] spilt = src.Split(":");
+            string[] spilt = src.Contains(':')
+                ? src.Split(":")
+                : src.Split(".", 2);
+
+            if (spilt.Length < 2)
+            {
+                Logging.Log($"无效的时间: \"{src}\"");
+                return 0;
+            }
+
             int.TryParse(spilt[0], out int minutes);
             double.TryParse(spilt[1], out double seconds);
 
