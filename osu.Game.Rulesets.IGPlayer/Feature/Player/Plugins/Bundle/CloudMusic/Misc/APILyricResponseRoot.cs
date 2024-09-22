@@ -61,16 +61,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                         propertyDetected = false;
 
                         //处理属性
-
                         //时间
-                        string timeProperty = propertyName.Replace(":", ".");
 
                         //如果是时间属性
-                        if (timeProperty[0].IsDigit())
+                        if (propertyName[0].IsDigit())
                         {
                             lyrics.Add(new Lyric
                             {
-                                Time = timeProperty.ToMilliseconds()
+                                Time = propertyName.ToMilliseconds()
                             });
                         }
 
@@ -130,13 +128,12 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                             //处理属性
 
                             //时间
-                            string timeProperty = propertyName.Replace(":", ".");
 
                             //如果是时间属性
-                            if (timeProperty[0].IsDigit())
+                            if (propertyName[0].IsDigit())
                             {
                                 //添加当前时间到times
-                                times.Add(timeProperty.ToMilliseconds());
+                                times.Add(propertyName.ToMilliseconds());
                             }
 
                             //todo: 在此放置对其他属性的处理逻辑

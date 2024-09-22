@@ -182,6 +182,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                     Origin = Anchor.TopRight,
                     Current = plugin.Offset,
                     LabelText = CloudMusicStrings.LocalOffset,
+                    KeyboardStep = 100,
                     RelativeSizeAxes = Axes.X,
                     Padding = new MarginPadding { Right = 10 }
                 },
