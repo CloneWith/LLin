@@ -175,7 +175,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
             Lyrics = newList;
 
             if (saveToDisk)
-                WriteLyricToDisk();
+                SaveLyricConfigToDisk();
 
             CurrentStatus.Value = Status.Finish;
         }
@@ -259,11 +259,13 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
             resetDBusMessage();
             PluginManager!.UnRegisterDBusObject(dbusObject);
 
+            this.SaveLyricConfigToDisk(CurrentWorkingBeatmap);
+
             if (!Disabled.Value)
                 PluginManager.RemoveDBusMenuEntry(lyricEntry);
         }
 
-        public void WriteLyricToDisk(WorkingBeatmap? currentBeatmap = null)
+        public void SaveLyricConfigToDisk(WorkingBeatmap? currentBeatmap = null)
         {
             currentBeatmap ??= CurrentWorkingBeatmap;
             LyricProcessor.WriteLrcToFile(currentResponseRoot, currentBeatmap);
@@ -283,6 +285,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
             currentResponseRoot = null;
             CurrentLine = null;
 
+            Offset.Value = 0d;
+
             if (UserDefinitionHelper.BeatmapMetaHaveDefinition(CurrentWorkingBeatmap.BeatmapInfo, out long neid))
                 GetLyricFor(neid);
             else if (UserDefinitionHelper.OnlineIDHaveDefinition(CurrentWorkingBeatmap.BeatmapSetInfo.OnlineID, out neid))
@@ -297,7 +301,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
         {
             if (Disabled.Value) return;
 
-            if (CurrentWorkingBeatmap != null) WriteLyricToDisk(CurrentWorkingBeatmap);
+            if (CurrentWorkingBeatmap != null) SaveLyricConfigToDisk(CurrentWorkingBeatmap);
 
             CurrentWorkingBeatmap = working;
             track = working.Track;
@@ -327,7 +331,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
                 Lyrics = responseRoot.ToLyricList();
 
                 if (autoSave.Value)
-                    WriteLyricToDisk();
+                    SaveLyricConfigToDisk();
 
                 CurrentStatus.Value = Status.Finish;
             });
