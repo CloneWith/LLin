@@ -1,6 +1,8 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
+
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Misc
 {
     public static class StringExtensions
@@ -11,7 +13,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
             int.TryParse(spilt[0], out int minutes);
             double.TryParse(spilt[1], out double seconds);
 
-            return minutes * 60000 + (int)(seconds * 1000);
+            return minutes * 60000 + (int)Math.Round(seconds * 1000);
         }
     }
 }

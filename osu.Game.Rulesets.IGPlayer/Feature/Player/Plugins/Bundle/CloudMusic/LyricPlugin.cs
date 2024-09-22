@@ -190,8 +190,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
 
         public readonly BindableDouble Offset = new BindableDouble
         {
-            MaxValue = 3000,
-            MinValue = -3000
+            MaxValue = 60000,
+            MinValue = -60000
         };
 
         private readonly Bindable<bool> autoSave = new Bindable<bool>();
