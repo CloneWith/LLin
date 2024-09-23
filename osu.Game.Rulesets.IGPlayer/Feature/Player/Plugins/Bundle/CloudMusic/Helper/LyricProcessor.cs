@@ -73,7 +73,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             var onFinish = searchOption.OnFinish;
             var onFail = searchOption.OnFail;
 
-            if (!searchOption.NoLocalFile)
+            if (!searchOption.NoLocalFile && searchOption.NoRetry)
             {
                 var localLyrics = GetLocalLyrics(beatmap);
 
