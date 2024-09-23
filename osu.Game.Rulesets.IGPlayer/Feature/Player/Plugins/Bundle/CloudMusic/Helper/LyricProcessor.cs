@@ -75,24 +75,13 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
 
             if (!searchOption.NoLocalFile)
             {
-                try
+                var localLyrics = GetLocalLyrics(beatmap);
+
+                if (localLyrics != null)
                 {
-                    string filePath = $"custom/lyrics/beatmap-{beatmap.BeatmapSetInfo.ID}.json";
-
-                    string content = File.ReadAllText(storage.GetFullPath(filePath, true));
-
-                    var deserializeObject = JsonConvert.DeserializeObject<APILyricResponseRoot>(content);
-
-                    if (deserializeObject != null)
-                    {
-                        onFinish?.Invoke(deserializeObject);
-                        setState(SearchState.Success);
-                        return;
-                    }
-                }
-                catch
-                {
-                    //忽略异常
+                    setState(SearchState.Success);
+                    onFinish?.Invoke(localLyrics);
+                    return;
                 }
             }
 
@@ -116,7 +105,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             //处理要搜索的歌名: "标题 艺术家"
             string title = beatmap.Metadata.GetTitle();
             string artist = searchOption.NoArtist ? string.Empty : $" {beatmap.Metadata.GetArtist()}";
-            string target = encoder.Encode($"{title}{artist}");
+            string target = encoder.Encode($"{title} {artist}");
 
             var req = new APISearchRequest(target);
 
@@ -145,6 +134,24 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             req.PerformAsync(cancellationTokenSource.Token).ConfigureAwait(false);
 
             currentSearchRequest = req;
+        }
+
+        public APILyricResponseRoot? GetLocalLyrics(WorkingBeatmap beatmap)
+        {
+            APILyricResponseRoot? deserializedObject = null;
+
+            try
+            {
+                string path = storage.GetFullPath(lyricFilePath(beatmap), true);
+                string content = File.ReadAllText(path);
+                deserializedObject = JsonConvert.DeserializeObject<APILyricResponseRoot>(content);
+            }
+            catch
+            {
+                //忽略异常
+            }
+
+            return deserializedObject;
         }
 
         /// <summary>
@@ -180,6 +187,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
 
             onSongSearchRequestFinish(meta, null);
         }
+
+        private static string lyricFilePath(WorkingBeatmap beatmap) => $"custom/lyrics/beatmap-{beatmap.BeatmapSetInfo.ID}.json";
 
         /// <summary>
         /// 当歌曲搜索请求完成后...
@@ -260,15 +269,12 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         [Resolved]
         private Storage storage { get; set; } = null!;
 
-        public void WriteLrcToFile(APILyricResponseRoot? responseRoot, WorkingBeatmap working)
+        public void WriteLrcToFile(APILyricResponseRoot? responseRoot, WorkingBeatmap beatmap)
         {
             try
             {
-                string target = $"custom/lyrics/beatmap-{working.BeatmapSetInfo.ID}.json";
-
-                string serializeObject = JsonConvert.SerializeObject(responseRoot);
-
-                File.WriteAllText(storage.GetFullPath(target, true), serializeObject);
+                string serializedObject = JsonConvert.SerializeObject(responseRoot);
+                File.WriteAllText(storage.GetFullPath(lyricFilePath(beatmap), true), serializedObject);
             }
             catch (Exception e)
             {

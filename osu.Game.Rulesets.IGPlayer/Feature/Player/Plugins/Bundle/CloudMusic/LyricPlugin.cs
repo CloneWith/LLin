@@ -284,15 +284,24 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic
             Lyrics.Clear();
             currentResponseRoot = null;
             CurrentLine = null;
-
             Offset.Value = 0d;
 
-            if (UserDefinitionHelper.BeatmapMetaHaveDefinition(CurrentWorkingBeatmap.BeatmapInfo, out long neid))
-                GetLyricFor(neid);
-            else if (UserDefinitionHelper.OnlineIDHaveDefinition(CurrentWorkingBeatmap.BeatmapSetInfo.OnlineID, out neid))
-                GetLyricFor(neid);
+            var localLyrics = LyricProcessor.GetLocalLyrics(CurrentWorkingBeatmap);
+
+            if (noLocalFile || localLyrics == null)
+            {
+                if (UserDefinitionHelper.BeatmapMetaHaveDefinition(CurrentWorkingBeatmap.BeatmapInfo, out long neid))
+                    GetLyricFor(neid);
+                else if (UserDefinitionHelper.OnlineIDHaveDefinition(CurrentWorkingBeatmap.BeatmapSetInfo.OnlineID, out neid))
+                    GetLyricFor(neid);
+                else
+                    LyricProcessor.Search(SearchOption.From(CurrentWorkingBeatmap, noLocalFile, onLyricRequestFinished, onLyricRequestFail, TitleSimilarThreshold.Value));
+            }
             else
-                LyricProcessor.Search(SearchOption.From(CurrentWorkingBeatmap, noLocalFile, onLyricRequestFinished, onLyricRequestFail, TitleSimilarThreshold.Value));
+            {
+                LyricProcessor.State.Value = LyricProcessor.SearchState.Success;
+                onLyricRequestFinished(localLyrics);
+            }
         }
 
         private double targetTime => track.CurrentTime + Offset.Value;
