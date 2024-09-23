@@ -1,5 +1,6 @@
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -36,13 +37,14 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
             new OsuMenuItem(
                 CloudMusicStrings.AdjustOffsetToLyric.ToString(),
                 MenuItemType.Standard,
-                () => plugin.Offset.Value = Value.Time - mvisScreen.CurrentTrack.CurrentTime)
+                () => plugin.Offset.Value = Value.Time - llinScreen.CurrentTrack.CurrentTime)
         };
 
         private Box hoverBox = null!;
         private OsuSpriteText contentText = null!;
         private OsuSpriteText translateText = null!;
         private OsuSpriteText timeText = null!;
+        private readonly BindableDouble offset = new BindableDouble();
 
         public LyricPiece(Lyric lrc)
         {
@@ -58,7 +60,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
         }
 
         [Resolved]
-        private IImplementLLin mvisScreen { get; set; } = null!;
+        private IImplementLLin llinScreen { get; set; } = null!;
 
         [Resolved]
         private CustomColourProvider colourProvider { get; set; } = null!;
@@ -164,22 +166,28 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
             {
                 bgBox.Colour = colourProvider.Highlight1.Opacity(isCurrent ? 1 : 0);
             }, true);
-            plugin.Offset.BindValueChanged(_ => Schedule(() => UpdateValue(Value)), true);
+            offset.BindValueChanged(_ => Schedule(() => UpdateValue(Value)), true);
         }
 
-        private bool isCurrent_real;
+        private bool isCurrentReal;
 
         private bool isCurrent
         {
-            get => isCurrent_real;
+            get => isCurrentReal;
             set
             {
                 bgBox.FadeColour(colourProvider.Highlight1.Opacity(value ? 1 : 0), 300, Easing.OutQuint);
                 textFillFlow.FadeColour(value ? Color4.Black : Color4.White, 300, Easing.OutQuint);
                 timeText.FadeColour(value ? Color4.Black : Color4.White, 300, Easing.OutQuint);
 
-                isCurrent_real = value;
+                isCurrentReal = value;
             }
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            offset.BindTo(plugin.Offset);
         }
 
         protected override void Update()
@@ -216,7 +224,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
 
         protected override bool OnClick(ClickEvent e)
         {
-            mvisScreen.SeekTo(Value.Time + 1 - plugin.Offset.Value);
+            llinScreen.SeekTo(Value.Time + 1 - plugin.Offset.Value);
             return base.OnClick(e);
         }
 
