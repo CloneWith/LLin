@@ -164,6 +164,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
             {
                 bgBox.Colour = colourProvider.Highlight1.Opacity(isCurrent ? 1 : 0);
             }, true);
+            plugin.Offset.BindValueChanged(_ => Schedule(() => UpdateValue(Value)), true);
         }
 
         private bool isCurrent_real;
@@ -196,7 +197,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
             contentText.Text = lyric.Content;
             translateText.Text = lyric.TranslatedString;
 
-            var timeSpan = TimeSpan.FromMilliseconds(lyric.Time);
+            var timeSpan = TimeSpan.FromMilliseconds(Math.Max(lyric.Time - plugin.Offset.Value, 0));
             timeText.Text = $"{timeSpan:mm\\:ss\\.fff}";
             TooltipText = $"{timeText.Text}"
                           + (string.IsNullOrEmpty(lyric.Content)
@@ -215,7 +216,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
 
         protected override bool OnClick(ClickEvent e)
         {
-            mvisScreen.SeekTo(Value.Time + 1);
+            mvisScreen.SeekTo(Value.Time + 1 - plugin.Offset.Value);
             return base.OnClick(e);
         }
 

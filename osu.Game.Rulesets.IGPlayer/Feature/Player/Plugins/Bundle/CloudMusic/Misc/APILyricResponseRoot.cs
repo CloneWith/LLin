@@ -40,7 +40,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                 //可能存在一行歌词多个时间，所以先创建列表
                 List<Lyric> lyrics = new List<Lyric>();
 
-                //Logging.Log($"处理歌词: {lyricString}");
+                //Logger.Log($"处理歌词: {lyricString}");
 
                 bool propertyDetected = false;
                 string propertyName = string.Empty;
