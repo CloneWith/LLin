@@ -43,8 +43,8 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <returns>相似度百分比</returns>
         public float GetSimiliarPrecentage()
         {
-            string neteaseTitle = GetNeteaseTitle();
-            string ourTitle = SourceBeatmap?.Metadata.GetTitle() ?? string.Empty;
+            string neteaseTitle = GetNeteaseTitle().ToLowerInvariant();
+            string ourTitle = SourceBeatmap?.Metadata.GetTitle().ToLowerInvariant() ?? string.Empty;
 
             string source = neteaseTitle.Length > ourTitle.Length ? neteaseTitle : ourTitle;
             string target = neteaseTitle.Length > ourTitle.Length ? ourTitle : neteaseTitle;
