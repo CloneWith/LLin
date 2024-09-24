@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
 using System.Text.Encodings.Web;
@@ -8,10 +7,12 @@ using System.Threading;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Misc;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Misc;
+using osu.Game.Rulesets.IGPlayer.Localisation.LLin.Plugins;
 using Component = osu.Framework.Graphics.Component;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Helper
@@ -22,16 +23,16 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
 
         public enum SearchState
         {
-            [Description("未找到歌曲或信息不匹配")]
+            [LocalisableDescription(typeof(CloudMusicStrings), nameof(CloudMusicStrings.SearchStateFail))]
             Fail,
 
-            [Description("搜索中")]
+            [LocalisableDescription(typeof(CloudMusicStrings), nameof(CloudMusicStrings.SearchStateSearching))]
             Searching,
 
-            [Description("模糊搜索中")]
+            [LocalisableDescription(typeof(CloudMusicStrings), nameof(CloudMusicStrings.SearchStateFuzzySearching))]
             FuzzySearching,
 
-            [Description("已就绪")]
+            [LocalisableDescription(typeof(CloudMusicStrings), nameof(CloudMusicStrings.SearchStateSuccess))]
             Success
         }
 
