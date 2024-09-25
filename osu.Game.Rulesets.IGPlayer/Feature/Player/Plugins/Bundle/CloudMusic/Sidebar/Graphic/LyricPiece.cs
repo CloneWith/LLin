@@ -205,26 +205,26 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
             contentText.Text = lyric.Content;
             translateText.Text = lyric.TranslatedString;
 
-            var timeSpan = TimeSpan.FromMilliseconds(Math.Max(lyric.Time - plugin.Offset.Value, 0));
+            var timeSpan = TimeSpan.FromMilliseconds(Math.Max(lyric.Time - offset.Value, 0));
             timeText.Text = $"{timeSpan:mm\\:ss\\.fff}";
             TooltipText = $"{timeText.Text}"
                           + (string.IsNullOrEmpty(lyric.Content)
-                              ? ""
+                              ? string.Empty
                               : $"－ {lyric.Content}")
                           + (string.IsNullOrEmpty(lyric.TranslatedString)
-                              ? ""
+                              ? string.Empty
                               : $"－ {lyric.TranslatedString}");
 
-            haveLyric = string.IsNullOrEmpty(lyric.Content);
+            haveLyric = !string.IsNullOrWhiteSpace(lyric.Content);
 
             Colour = haveLyric
-                ? Color4Extensions.FromHex(@"555")
-                : Color4.White;
+                ? Color4.White
+                : Color4Extensions.FromHex(@"555");
         }
 
         protected override bool OnClick(ClickEvent e)
         {
-            llinScreen.SeekTo(Value.Time + 1 - plugin.Offset.Value);
+            llinScreen.SeekTo(Value.Time + 1 - offset.Value);
             return base.OnClick(e);
         }
 
