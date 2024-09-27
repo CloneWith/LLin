@@ -40,7 +40,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                 //可能存在一行歌词多个时间，所以先创建列表
                 List<Lyric> lyrics = new List<Lyric>();
 
-                //Logging.Log($"处理歌词: {lyricString}");
+                //Logger.Log($"处理歌词: {lyricString}");
 
                 bool propertyDetected = false;
                 string propertyName = string.Empty;
@@ -107,7 +107,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                     string propertyName = string.Empty;
                     string lyricContent = string.Empty;
 
-                    IList<int> times = new List<int>();
+                    List<int> times = [];
 
                     //Logging.Log($"处理翻译歌词: {tlyricString}");
 
@@ -155,7 +155,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
                         foreach (var lrc in result.FindAll(l => l.Time == time))
                         {
                             lrc.TranslatedString = lyricContent;
-                            //Logging.Log($"设置歌词歌词: {lrc}");
+                            //Logger.Log($"设置歌词: {lrc}");
                         }
                     }
                 }

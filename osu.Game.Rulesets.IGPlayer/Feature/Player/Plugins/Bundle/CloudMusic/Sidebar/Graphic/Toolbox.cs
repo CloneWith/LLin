@@ -129,7 +129,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
             {
                 this.Schedule(() =>
                 {
-                    statusText.Text = $"{v.NewValue.GetDescription()}";
+                    statusText.Text = v.NewValue.GetLocalisableDescription();
 
                     var color = Color4.White;
 
@@ -191,7 +191,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                     Anchor = Anchor.TopRight,
                     Origin = Anchor.TopRight,
                     RelativeSizeAxes = Axes.X,
-                    PlaceholderText = "按网易云ID搜索歌词"
+                    PlaceholderText = CloudMusicStrings.SearchById
                 },
                 new FillFlowContainer
                 {
@@ -243,7 +243,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
                     plugin.GetLyricFor(id);
                 else
                 {
-                    textBox.Text = "";
+                    textBox.Text = string.Empty;
                 }
             };
         }
