@@ -76,7 +76,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 OnFinish = requestFinishMeta.OnFinish,
                 OnFail = requestFinishMeta.OnFail,
 
-                TitleSimiliarThreshold = requestFinishMeta.TitleSimiliarThreshold
+                TitleSimiliarThreshold = requestFinishMeta.TitleSimilarThreshold
             };
         }
     }

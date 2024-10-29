@@ -225,11 +225,11 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 return;
             }
 
-            float similiarPrecentage = meta.GetSimiliarPrecentage();
+            float similarPercentage = meta.GetSimilarPercentage();
 
-            Logging.Log($"Beatmap: '{meta.SourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similiarPrecentage} <-> {meta.TitleSimiliarThreshold}");
+            Logging.Log($"Beatmap: '{meta.SourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similarPercentage} <-> {meta.TitleSimilarThreshold}");
 
-            if (similiarPrecentage >= meta.TitleSimiliarThreshold)
+            if (similarPercentage >= meta.TitleSimilarThreshold)
             {
                 //标题匹配，发送歌词查询请求
                 var req = new APILyricRequest(meta.SongID);
@@ -257,7 +257,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 this.setState(SearchState.Fail);
 
                 Logging.Log($"对 {meta.SourceBeatmap?.Metadata.GetTitle() ?? "未知谱面"} 的标题匹配失败：");
-                Logging.Log($"Beatmap: '{meta.SourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similiarPrecentage} < {meta.TitleSimiliarThreshold}");
+                Logging.Log($"Beatmap: '{meta.SourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similarPercentage} < {meta.TitleSimilarThreshold}");
 
                 meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
             }

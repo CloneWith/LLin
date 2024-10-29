@@ -20,7 +20,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <summary>
         /// 标题匹配阈值，值越高要求越严格
         /// </summary>
-        public float TitleSimiliarThreshold;
+        public float TitleSimilarThreshold;
 
         /// <summary>
         /// 请求是否成功？
@@ -41,7 +41,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// 获取网易云歌曲标题和搜索标题的相似度
         /// </summary>
         /// <returns>相似度百分比</returns>
-        public float GetSimiliarPrecentage()
+        public float GetSimilarPercentage()
         {
             string neteaseTitle = GetNeteaseTitle().ToLowerInvariant();
             string ourTitle = SourceBeatmap?.Metadata.GetTitle().ToLowerInvariant() ?? string.Empty;
@@ -52,9 +52,9 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             if (string.IsNullOrEmpty(neteaseTitle) || string.IsNullOrEmpty(ourTitle)) return 0;
 
             int distance = LevenshteinDistance.Compute(source, target);
-            float precentage = 1 - (distance / (float)source.Length);
+            float percentage = 1 - (distance / (float)source.Length);
 
-            return Math.Abs(precentage);
+            return Math.Abs(percentage);
         }
 
         public string GetNeteaseTitle()
@@ -89,7 +89,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <param name="sourceBeatmap">和此Meta对应的<see cref="WorkingBeatmap"/>></param>
         /// <param name="onFinish">完成时要进行的动作</param>
         /// <param name="onFail">失败时要进行的动作</param>
-        /// <param name="titleSimiliarThreshold"><see cref="TitleSimiliarThreshold"/></param>
+        /// <param name="titleSimiliarThreshold"><see cref="TitleSimilarThreshold"/></param>
         /// <returns>通过参数构建的<see cref="RequestFinishMeta"/>></returns>
         public static RequestFinishMeta From(APISearchResponseRoot responseRoot, WorkingBeatmap? sourceBeatmap,
                                              Action<APILyricResponseRoot>? onFinish, Action<string>? onFail,
@@ -102,7 +102,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 SearchResponseRoot = responseRoot,
                 Success = (responseRoot.Result?.Songs?.First().ID ?? -1) > 0,
                 SourceBeatmap = sourceBeatmap,
-                TitleSimiliarThreshold = titleSimiliarThreshold
+                TitleSimilarThreshold = titleSimiliarThreshold
             };
         }
     }
