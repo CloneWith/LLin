@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using osu.Game.Beatmaps;
-using osu.Game.Rulesets.IGPlayer.Feature.Player.Misc;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Misc;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Helper
@@ -15,7 +13,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <summary>
         /// 与此请求对应的<see cref="WorkingBeatmap"/>
         /// </summary>
-        public WorkingBeatmap? SourceBeatmap;
+        public WorkingBeatmap SourceBeatmap;
 
         /// <summary>
         /// 标题匹配阈值，值越高要求越严格
@@ -33,56 +31,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         public bool NoRetry;
 
         /// <summary>
-        /// 歌曲ID，未搜到歌曲时返回-1
-        /// </summary>
-        public long SongID => (SearchResponseRoot.Result?.Songs?.First().ID ?? -1);
-
-        /// <summary>
-        /// 获取网易云歌曲标题和搜索标题的相似度
-        /// </summary>
-        /// <returns>相似度百分比</returns>
-        public float GetSimilarPercentage()
-        {
-            string neteaseTitle = GetNeteaseTitle().ToLowerInvariant();
-            string ourTitle = SourceBeatmap?.Metadata.GetTitle().ToLowerInvariant() ?? string.Empty;
-
-            string source = neteaseTitle.Length > ourTitle.Length ? neteaseTitle : ourTitle;
-            string target = neteaseTitle.Length > ourTitle.Length ? ourTitle : neteaseTitle;
-
-            if (string.IsNullOrEmpty(neteaseTitle) || string.IsNullOrEmpty(ourTitle)) return 0;
-
-            int distance = LevenshteinDistance.Compute(source, target);
-            float percentage = 1 - (distance / (float)source.Length);
-
-            return Math.Abs(percentage);
-        }
-
-        public string GetNeteaseTitle()
-        {
-            return SearchResponseRoot?.Result?.Songs?.First().Name ?? string.Empty;
-        }
-
-        /// <summary>
-        /// 返回一个失败的<see cref="RequestFinishMeta"/>
-        /// </summary>
-        /// <param name="beatmap">和此Meta对应的<see cref="WorkingBeatmap"/>></param>
-        /// <returns>通过参数构建的<see cref="RequestFinishMeta"/>></returns>
-        public static RequestFinishMeta Fail(WorkingBeatmap? beatmap = null)
-        {
-            return new RequestFinishMeta
-            {
-                Success = false,
-
-                OnFinish = null,
-                OnFail = null,
-                SearchResponseRoot = new APISearchResponseRoot(),
-
-                SourceBeatmap = beatmap,
-                NoRetry = true
-            };
-        }
-
-        /// <summary>
         /// 通过给定的参数构建<see cref="RequestFinishMeta"/>>
         /// </summary>
         /// <param name="responseRoot"><see cref="APISearchResponseRoot"/>></param>
@@ -91,7 +39,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <param name="onFail">失败时要进行的动作</param>
         /// <param name="titleSimiliarThreshold"><see cref="TitleSimilarThreshold"/></param>
         /// <returns>通过参数构建的<see cref="RequestFinishMeta"/>></returns>
-        public static RequestFinishMeta From(APISearchResponseRoot responseRoot, WorkingBeatmap? sourceBeatmap,
+        public static RequestFinishMeta From(APISearchResponseRoot responseRoot, WorkingBeatmap sourceBeatmap,
                                              Action<APILyricResponseRoot>? onFinish, Action<string>? onFail,
                                              float titleSimiliarThreshold)
         {
@@ -100,7 +48,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 OnFinish = onFinish,
                 OnFail = onFail,
                 SearchResponseRoot = responseRoot,
-                Success = (responseRoot.Result?.Songs?.First().ID ?? -1) > 0,
                 SourceBeatmap = sourceBeatmap,
                 TitleSimilarThreshold = titleSimiliarThreshold
             };

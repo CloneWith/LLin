@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -198,41 +199,27 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <param name="searchRequest"></param>
         private void onSongSearchRequestFinish(RequestFinishMeta meta, APISearchRequest? searchRequest)
         {
-            if (!meta.Success)
+            var sourceBeatmap = meta.SourceBeatmap;
+            var songs = meta.SearchResponseRoot.Result?.Songs;
+
+            if (songs == null)
             {
-                //如果没成功，尝试使用标题重搜
-                if (meta.SourceBeatmap != null && !meta.NoRetry)
-                {
-                    var searchMeta = SearchOption.FromRequestFinishMeta(meta);
-                    searchMeta.NoArtist = true;
-                    searchMeta.NoRetry = true;
-                    searchMeta.NoLocalFile = true;
-
-                    if (searchRequest != null && searchRequest == currentSearchRequest)
-                        setState(SearchState.FuzzySearching);
-
-                    //Logging.Log("精准搜索失败, 将尝试只搜索标题...");
-                    Search(searchMeta);
-                }
-                else
-                {
-                    if (searchRequest != null && searchRequest == currentSearchRequest)
-                        setState(SearchState.Fail);
-
-                    meta.OnFail?.Invoke("未搜索到对应歌曲!");
-                }
-
+                setState(SearchState.Fail);
+                meta.OnFail?.Invoke("搜索请求失败");
                 return;
             }
 
-            float similarPercentage = meta.GetSimilarPercentage();
+            var titleMatches = songs.Select(s => new { Song = s, SimilarPercentage = s.GetSimilarPercentage(sourceBeatmap) })
+                                    .Where(p => p.SimilarPercentage >= meta.TitleSimilarThreshold)
+                                    .OrderBy(p => p.SimilarPercentage);
+            var artistMatches = titleMatches.OrderBy(s => LevenshteinDistance.Compute(s.Song.GetArtist(), sourceBeatmap.Metadata.GetArtist()));
+            var perfectMatch = artistMatches.FirstOrDefault();
 
-            Logging.Log($"Beatmap: '{meta.SourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similarPercentage} <-> {meta.TitleSimilarThreshold}");
-
-            if (similarPercentage >= meta.TitleSimilarThreshold)
+            if (perfectMatch != null && perfectMatch.SimilarPercentage > meta.TitleSimilarThreshold)
             {
+                Logging.Log($"Beatmap: '{sourceBeatmap.Metadata.GetTitle()}' <-> '{perfectMatch.Song.Name}' -> {perfectMatch.SimilarPercentage} > {meta.TitleSimilarThreshold}");
                 //标题匹配，发送歌词查询请求
-                var req = new APILyricRequest(meta.SongID);
+                var req = new APILyricRequest(perfectMatch.Song.ID);
                 req.Finished += () =>
                 {
                     if (currentLyricRequest == req)
@@ -254,10 +241,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             else
             {
                 //Logging.Log("标题匹配失败, 将不会继续搜索歌词...");
-                this.setState(SearchState.Fail);
+                setState(SearchState.Fail);
 
-                Logging.Log($"对 {meta.SourceBeatmap?.Metadata.GetTitle() ?? "未知谱面"} 的标题匹配失败：");
-                Logging.Log($"Beatmap: '{meta.SourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similarPercentage} < {meta.TitleSimilarThreshold}");
+                Logging.Log($"对 {sourceBeatmap?.Metadata.GetTitle() ?? "未知谱面"} 的标题匹配失败：");
+                //Logging.Log($"Beatmap: '{sourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similarPercentage} < {meta.TitleSimilarThreshold}");
 
                 meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
             }
