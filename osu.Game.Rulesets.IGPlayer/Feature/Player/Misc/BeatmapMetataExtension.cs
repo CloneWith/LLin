@@ -18,11 +18,11 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Misc
             return new RomanisableString(metadata.ArtistUnicode, metadata.Artist);
         }
 
-        public static string GetTitle(this BeatmapMetadata metadata)
+        public static (string Title, bool IsUnicode) GetTitle(this BeatmapMetadata metadata)
         {
             return string.IsNullOrEmpty(metadata.TitleUnicode)
-                ? metadata.Title
-                : metadata.TitleUnicode;
+                ? (metadata.Title, false)
+                : (metadata.TitleUnicode, true);
         }
 
         public static string GetArtist(this BeatmapMetadata metadata)
