@@ -106,7 +106,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
 
             //处理要搜索的歌名: "标题 艺术家"
             string title = beatmap.Metadata.GetTitle();
-            string artist = searchOption.NoArtist ? string.Empty : $" {beatmap.Metadata.GetArtist()}";
+            string artist = searchOption.NoArtist ? string.Empty :beatmap.Metadata.GetArtist();
             string target = encoder.Encode($"{title} {artist}");
 
             var req = new APISearchRequest(target);
@@ -209,45 +209,78 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 return;
             }
 
-            var titleMatches = songs.Select(s => new { Song = s, SimilarPercentage = s.GetSimilarPercentage(sourceBeatmap) })
-                                    .Where(p => p.SimilarPercentage >= meta.TitleSimilarThreshold)
-                                    .OrderBy(p => p.SimilarPercentage);
-            var artistMatches = titleMatches.OrderBy(s => LevenshteinDistance.Compute(s.Song.GetArtist(), sourceBeatmap.Metadata.GetArtist()));
-            var perfectMatch = artistMatches.FirstOrDefault();
+            songs.ForEach(s => s.CalculateSimilarPercentage(sourceBeatmap));
 
-            if (perfectMatch != null && perfectMatch.SimilarPercentage > meta.TitleSimilarThreshold)
+            var titleMatches = songs.Where(p => p.TitleSimilarPercentage >= meta.TitleSimilarThreshold)
+                                    .OrderByDescending(p => p.TitleSimilarPercentage);
+            var artistMatches = titleMatches.OrderByDescending(s => s.ArtistSimilarPercentage);
+            var match = artistMatches.FirstOrDefault();
+
+            if (match != null)
             {
-                Logging.Log($"Beatmap: '{sourceBeatmap.Metadata.GetTitle()}' <-> '{perfectMatch.Song.Name}' -> {perfectMatch.SimilarPercentage} > {meta.TitleSimilarThreshold}");
-                //标题匹配，发送歌词查询请求
-                var req = new APILyricRequest(perfectMatch.Song.ID);
-                req.Finished += () =>
-                {
-                    if (currentLyricRequest == req)
-                        setState(SearchState.Success);
+                string title = sourceBeatmap.Metadata.GetTitle();
 
-                    meta.OnFinish?.Invoke(req.ResponseObject);
-                };
-                req.Failed += e =>
+                if (match.ArtistSimilarPercentage >= (meta.NoRetry ? 0 : meta.TitleSimilarThreshold))
                 {
-                    if (currentLyricRequest == req)
+                    Logging.Log($"Beatmap: '{title}' <-> '{match.Name}' -> {match.TitleSimilarPercentage} > {meta.TitleSimilarThreshold}");
+                }
+                else
+                {
+                    Logging.Log($"对 {title} 的匹配失败，尝试不匹配歌手");
+                    match = titleMatches.FirstOrDefault();
+
+                    if (match == null)
+                    {
+                        meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
                         setState(SearchState.Fail);
+                        return;
+                    }
 
-                    Logging.LogError(e, "获取歌词失败");
-                };
-                req.PerformAsync(cancellationTokenSource.Token).ConfigureAwait(false);
-
-                currentLyricRequest = req;
+                    Logging.Log($"Beatmap: '{sourceBeatmap.Metadata.GetTitle()}' <-> '{match.Name}' -> {match.TitleSimilarPercentage} < {meta.TitleSimilarThreshold}");
+                }
             }
-            else
+
+            if (match == null)
             {
-                //Logging.Log("标题匹配失败, 将不会继续搜索歌词...");
-                setState(SearchState.Fail);
+                if (!meta.NoRetry)
+                {
+                    var searchMeta = SearchOption.FromRequestFinishMeta(meta);
+                    searchMeta.NoArtist = true;
+                    searchMeta.NoRetry = true;
+                    searchMeta.NoLocalFile = true;
 
-                Logging.Log($"对 {sourceBeatmap?.Metadata.GetTitle() ?? "未知谱面"} 的标题匹配失败：");
-                //Logging.Log($"Beatmap: '{sourceBeatmap?.Metadata.GetTitle() ?? "???"}' <-> '{meta.GetNeteaseTitle()}' -> {similarPercentage} < {meta.TitleSimilarThreshold}");
+                    if (searchRequest != null && searchRequest == currentSearchRequest)
+                        setState(SearchState.FuzzySearching);
 
-                meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
+                    Search(searchMeta);
+                }
+                else
+                {
+                    meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
+                    setState(SearchState.Fail);
+                }
+
+                return;
             }
+
+            var req = new APILyricRequest(match.ID);
+            req.Finished += () =>
+            {
+                if (currentLyricRequest == req)
+                    setState(SearchState.Success);
+
+                meta.OnFinish?.Invoke(req.ResponseObject);
+            };
+            req.Failed += e =>
+            {
+                if (currentLyricRequest == req)
+                    setState(SearchState.Fail);
+
+                Logging.LogError(e, "获取歌词失败");
+            };
+            req.PerformAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+
+            currentLyricRequest = req;
         }
 
         #endregion
