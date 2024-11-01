@@ -75,7 +75,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             var onFinish = searchOption.OnFinish;
             var onFail = searchOption.OnFail;
 
-            if (!searchOption.NoLocalFile && searchOption.NoRetry)
+            if (!searchOption.NoLocalFile)
             {
                 var localLyrics = GetLocalLyrics(beatmap);
 
@@ -105,16 +105,15 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
             currentLyricRequest?.Dispose();
 
             //处理要搜索的歌名: "标题 艺术家"
-            string title = beatmap.Metadata.GetTitle();
-            string artist = searchOption.NoArtist ? string.Empty :beatmap.Metadata.GetArtist();
+            string title = searchOption.SearchMode == SearchMode.RomanisedTitle ? beatmap.Metadata.Title : beatmap.Metadata.TitleUnicode;
+            string artist = searchOption.SearchMode == SearchMode.NoArtist ? string.Empty : beatmap.Metadata.GetArtist();
             string target = encoder.Encode($"{title} {artist}");
 
             var req = new APISearchRequest(target);
 
             req.Finished += () =>
             {
-                var meta = RequestFinishMeta.From(req.ResponseObject, beatmap, onFinish, onFail, searchOption.TitleSimiliarThreshold);
-                meta.NoRetry = searchOption.NoRetry;
+                var meta = RequestFinishMeta.From(req.ResponseObject, beatmap, onFinish, onFail, searchOption.SearchMode, searchOption.TitleSimilarThreshold);
 
                 onSongSearchRequestFinish(meta, req);
             };
@@ -184,7 +183,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 }
             };
 
-            var meta = RequestFinishMeta.From(fakeResponse, beatmap, onFinish, onFail, 0);
+            var meta = RequestFinishMeta.From(fakeResponse, beatmap, onFinish, onFail, 0, 0);
             meta.NoRetry = true;
 
             onSongSearchRequestFinish(meta, null);
@@ -200,14 +199,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         private void onSongSearchRequestFinish(RequestFinishMeta meta, APISearchRequest? searchRequest)
         {
             var sourceBeatmap = meta.SourceBeatmap;
-            var songs = meta.SearchResponseRoot.Result?.Songs;
-
-            if (songs == null)
-            {
-                setState(SearchState.Fail);
-                meta.OnFail?.Invoke("搜索请求失败");
-                return;
-            }
+            var songs = meta.SearchResponseRoot.Result?.Songs ?? [];
 
             songs.ForEach(s => s.CalculateSimilarPercentage(sourceBeatmap));
 
@@ -215,49 +207,47 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                                     .OrderByDescending(p => p.TitleSimilarPercentage);
             var artistMatches = titleMatches.OrderByDescending(s => s.ArtistSimilarPercentage);
             var match = artistMatches.FirstOrDefault();
+            string title = meta.SearchMode == SearchMode.RomanisedTitle ? sourceBeatmap.Metadata.Title : sourceBeatmap.Metadata.TitleUnicode;
 
             if (match != null)
             {
-                string title = sourceBeatmap.Metadata.GetTitle();
-
-                if (match.ArtistSimilarPercentage >= (meta.NoRetry ? 0 : meta.TitleSimilarThreshold))
+                if (match.ArtistSimilarPercentage >= (meta.SearchMode == SearchMode.NoArtist ? 0 : meta.TitleSimilarThreshold))
                 {
-                    Logging.Log($"Beatmap: '{title}' <-> '{match.Name}' -> {match.TitleSimilarPercentage} > {meta.TitleSimilarThreshold}");
-                }
-                else
-                {
-                    Logging.Log($"对 {title} 的匹配失败，尝试不匹配歌手");
-                    match = titleMatches.FirstOrDefault();
-
-                    if (match == null)
-                    {
-                        meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
-                        setState(SearchState.Fail);
-                        return;
-                    }
-
-                    Logging.Log($"Beatmap: '{sourceBeatmap.Metadata.GetTitle()}' <-> '{match.Name}' -> {match.TitleSimilarPercentage} < {meta.TitleSimilarThreshold}");
+                    Logging.Log($"Beatmap: '{title}' <-> '{match.Name}' -> {match.TitleSimilarPercentage} >= {meta.TitleSimilarThreshold}");
                 }
             }
 
             if (match == null)
             {
-                if (!meta.NoRetry)
-                {
-                    var searchMeta = SearchOption.FromRequestFinishMeta(meta);
-                    searchMeta.NoArtist = true;
-                    searchMeta.NoRetry = true;
-                    searchMeta.NoLocalFile = true;
+                var searchMeta = SearchOption.FromRequestFinishMeta(meta);
 
-                    if (searchRequest != null && searchRequest == currentSearchRequest)
-                        setState(SearchState.FuzzySearching);
-
-                    Search(searchMeta);
-                }
-                else
+                switch (meta.SearchMode)
                 {
-                    meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
-                    setState(SearchState.Fail);
+                    case SearchMode.Normal:
+                        Logging.Log("尝试使用罗马音标题搜索");
+                        searchMeta.SearchMode = SearchMode.RomanisedTitle;
+                        searchMeta.NoLocalFile = true;
+
+                        if (searchRequest != null && searchRequest == currentSearchRequest)
+                            setState(SearchState.FuzzySearching);
+
+                        Search(searchMeta);
+                        break;
+
+                    case SearchMode.RomanisedTitle:
+                        searchMeta.SearchMode = SearchMode.NoArtist;
+                        searchMeta.NoLocalFile = true;
+
+                        if (searchRequest != null && searchRequest == currentSearchRequest)
+                            setState(SearchState.FuzzySearching);
+
+                        Search(searchMeta);
+                        break;
+
+                    case SearchMode.NoArtist:
+                        meta.OnFail?.Invoke("标题匹配失败, 将不会继续搜索歌词...");
+                        setState(SearchState.Fail);
+                        break;
                 }
 
                 return;

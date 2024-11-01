@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using osu.Game.Beatmaps;
+using osu.Game.Rulesets.IGPlayer.Feature.Player.Misc;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Helper;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Misc
@@ -27,18 +28,18 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Mi
         /// 获取网易云歌曲标题和搜索标题的相似度
         /// </summary>
         /// <returns>相似度百分比</returns>
-        public void CalculateSimilarPercentage(WorkingBeatmap? beatmap)
+        public void CalculateSimilarPercentage(WorkingBeatmap beatmap)
         {
             string neteaseTitle = Name?.ToLowerInvariant() ?? string.Empty;
-            string ourTitle = beatmap?.Metadata.Title.ToLowerInvariant() ?? string.Empty;
+            string ourTitle = beatmap.Metadata.Title.ToLowerInvariant() ?? string.Empty;
 
             float titleSimilarPercentage = LevenshteinDistance.ComputeSimilarPercentage(neteaseTitle, ourTitle);
-            ourTitle = beatmap?.Metadata.TitleUnicode.ToLowerInvariant() ?? string.Empty;
+            ourTitle = beatmap.Metadata.TitleUnicode.ToLowerInvariant() ?? string.Empty;
             float titleSimilarPercentageUnicode = LevenshteinDistance.ComputeSimilarPercentage(neteaseTitle, ourTitle);
             TitleSimilarPercentage = Math.Max(titleSimilarPercentageUnicode, titleSimilarPercentage);
 
-            neteaseTitle = GetArtist();
-            ArtistSimilarPercentage = Artists.Count(a => neteaseTitle.Contains(a.Name)) / (float)Artists.Count;
+            ourTitle = beatmap.Metadata.GetArtist();
+            ArtistSimilarPercentage = Artists.Count(a => ourTitle.Contains(a.Name)) / (float)Artists.Count;
         }
 
         public string GetArtist() => string.Join(" / ", Artists.Select(a => a.Name));

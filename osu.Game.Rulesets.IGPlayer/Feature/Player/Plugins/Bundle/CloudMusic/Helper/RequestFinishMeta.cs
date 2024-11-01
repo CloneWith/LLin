@@ -26,6 +26,11 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         public bool Success;
 
         /// <summary>
+        /// 请求是否成功？
+        /// </summary>
+        public SearchMode SearchMode;
+
+        /// <summary>
         /// 是否要重新搜索？
         /// </summary>
         public bool NoRetry;
@@ -37,10 +42,12 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <param name="sourceBeatmap">和此Meta对应的<see cref="WorkingBeatmap"/>></param>
         /// <param name="onFinish">完成时要进行的动作</param>
         /// <param name="onFail">失败时要进行的动作</param>
+        /// <param name="searchMode"><see cref="SearchMode"/></param>
         /// <param name="titleSimiliarThreshold"><see cref="TitleSimilarThreshold"/></param>
         /// <returns>通过参数构建的<see cref="RequestFinishMeta"/>></returns>
         public static RequestFinishMeta From(APISearchResponseRoot responseRoot, WorkingBeatmap sourceBeatmap,
                                              Action<APILyricResponseRoot>? onFinish, Action<string>? onFail,
+                                             SearchMode searchMode,
                                              float titleSimiliarThreshold)
         {
             return new RequestFinishMeta
@@ -49,6 +56,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 OnFail = onFail,
                 SearchResponseRoot = responseRoot,
                 SourceBeatmap = sourceBeatmap,
+                SearchMode = searchMode,
                 TitleSimilarThreshold = titleSimiliarThreshold
             };
         }

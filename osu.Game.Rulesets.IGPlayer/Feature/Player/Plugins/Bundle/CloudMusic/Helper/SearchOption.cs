@@ -1,5 +1,6 @@
 using System;
 using osu.Game.Beatmaps;
+using osu.Game.Rulesets.IGPlayer.Feature.Player.Misc;
 using osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Misc;
 
 namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Helper
@@ -17,12 +18,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
         /// <summary>
         /// 是否要不带艺术家搜索？
         /// </summary>
-        public bool NoArtist;
-
-        /// <summary>
-        /// 失败后是否禁止重试？
-        /// </summary>
-        public bool NoRetry;
+        public SearchMode SearchMode;
 
         /// <summary>
         /// 在发出请求前是否要尝试从本地缓存寻找和谱面ID对应的歌词文件？
@@ -47,15 +43,15 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                                         Action<APILyricResponseRoot>? onFinish, Action<string> onFail,
                                         float titleSimilarThreshold)
         {
+            var title = sourceBeatmap.Metadata.GetTitle();
+
             return new SearchOption
             {
+                SearchMode = title.IsUnicode ? SearchMode.Normal : SearchMode.RomanisedTitle,
                 Beatmap = sourceBeatmap,
-
                 OnFinish = onFinish,
                 OnFail = onFail,
-
                 NoLocalFile = noLocalFile,
-
                 TitleSimilarThreshold = titleSimilarThreshold
             };
         }
@@ -77,5 +73,12 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.He
                 TitleSimilarThreshold = requestFinishMeta.TitleSimilarThreshold
             };
         }
+    }
+
+    public enum SearchMode
+    {
+        Normal,
+        RomanisedTitle,
+        NoArtist,
     }
 }
