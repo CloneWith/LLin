@@ -239,7 +239,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.Si
 
             textBox.OnCommit += (sender, isNewText) =>
             {
-                if (int.TryParse(sender.Text, out int id))
+                if (long.TryParse(sender.Text, out long id))
                     plugin.GetLyricFor(id);
                 else
                 {
