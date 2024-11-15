@@ -67,7 +67,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                         Margin = getMargin(false)
                     }, text =>
                     {
-                        if (tokenSource.Token.IsCancellationRequested)
+                        if (tokenSource.IsCancellationRequested)
                             return;
 
                         lyricContainer.Add(text);
@@ -113,7 +113,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
                         Margin = getMargin(true)
                     }, text =>
                     {
-                        if (tokenSource.Token.IsCancellationRequested)
+                        if (tokenSource.IsCancellationRequested)
                             return;
 
                         text.MoveToY(0, fadeInDuration.Value, fadeInEasing)
@@ -121,7 +121,7 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Bundle.CloudMusic.UI
 
                         lyricContainer.Add(text);
                         currentLineTranslated = text;
-                    });
+                    }, tokenSource.Token);
                 });
 
                 currentRawTranslateText = value;
