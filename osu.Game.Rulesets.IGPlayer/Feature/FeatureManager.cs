@@ -1,5 +1,4 @@
 using System;
-using NetCoreServer;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics.Containers;
@@ -11,7 +10,6 @@ namespace osu.Game.Rulesets.IGPlayer.Feature;
 public partial class FeatureManager : CompositeDrawable
 {
     public readonly BindableBool CanUseDBus = new(true);
-    public readonly BindableBool CanUseGlazerMemory = new(true);
 
     public static FeatureManager? Instance { get; private set; }
 
@@ -45,20 +43,6 @@ public partial class FeatureManager : CompositeDrawable
                 Logging.LogError(e, $"Unable to activate DBus integration: {e.Message}");
                 CanUseDBus.Value = false;
             }
-        }
-
-        // Check GLazer
-        try
-        {
-            // 尝试加载Gosu集成所需的NetCoreServer，如果成功则代表安装了对应DLL
-            var server = new HttpServer("127.0.0.1", 32763);
-        }
-        catch (Exception e)
-        {
-            if (e is not TypeLoadException) return;
-
-            Logging.LogError(e, $"Unable to activate Gosu integration: {e.Message}");
-            CanUseGlazerMemory.Value = false;
         }
     }
 }
