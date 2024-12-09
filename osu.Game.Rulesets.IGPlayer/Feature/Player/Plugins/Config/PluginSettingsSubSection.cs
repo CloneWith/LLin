@@ -59,13 +59,10 @@ namespace osu.Game.Rulesets.IGPlayer.Feature.Player.Plugins.Config
         {
             var entries = pluginManager.GetSettingsFor(plugin);
 
-            if (entries != null)
-            {
-                foreach (var se in entries)
-                {
-                    Add(se.ToSettingsItem());
-                }
-            }
+            if (entries == null) return;
+
+            foreach (var se in entries)
+                Add(se.ToSettingsItem());
         }
     }
 }
